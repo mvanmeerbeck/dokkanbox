@@ -48,10 +48,18 @@ def join(a, b):
         parent[ra] = rb
 
 
+# The awakening graph is directed: `card_id` awakens INTO `awaked_card_id`. Union-find only
+# needs the pairs, but choosing the terminal form later needs the arrows — a Dokkan route
+# can awaken a card into one with a SMALLER id (1007931 → 1006211), so the last form is the
+# sink of this graph, not the highest id. Optimal rows are the EZA's own stages, self-loops
+# on one id, and say nothing about succession, so they are left out here.
+awakens = defaultdict(set)
 for r in csv.DictReader(open(ROUTES, encoding='utf-8', errors='replace')):
     a, b = int(r['card_id']), int(r['awaked_card_id'])
     if a in rows and b in rows:
         join(a, b)
+        if a != b and r['type'] != 'CardAwakeningRoute::Optimal':
+            awakens[a].add(b)
 
 # The dump is missing most of the Zet edges: only 1502 of the 8648 consecutive pairs are
 # there, so a card like 1034370 stayed alone while the chain holding its awakened form
@@ -63,6 +71,7 @@ for b in list(rows):
     if b % 10 and a in rows and rows[a]['name'] == rows[b]['name'] \
             and int(rows[a]['element']) % 10 == int(rows[b]['element']) % 10:
         join(a, b)
+        awakens[a].add(b)          # the Zet direction: base a awakens into a+1
 
 OPTIMAL = {int(r['card_id']) for r in csv.DictReader(open(ROUTES, encoding='utf-8',
            errors='replace')) if r['type'] == 'CardAwakeningRoute::Optimal'}
@@ -89,7 +98,14 @@ for cid in sorted(have):
 out, replis = [], 0
 for key, bases in chains.items():
     family = members.get(key) or list(bases)
-    top = max(family, key=lambda x: (int(rows[x]['rarity']), x))
+    # The terminal form is the sink of the family's awakening graph — the member no other
+    # member awakens into a further form of. Following the highest id instead breaks
+    # whenever a Dokkan route awakens into a smaller id (Gotenks 1007931 → 1006211): the
+    # album then drew the pre-Dokkan illustration. Among sinks (normally one), and if the
+    # graph is silent, the old rule stands.
+    fam = set(family)
+    sinks = [x for x in family if not (awakens.get(x, set()) & fam)] or family
+    top = max(sinks, key=lambda x: (int(rows[x]['rarity']), int(rows[x]['lv_max'] or 0), x))
     # the artwork belongs to the base of the terminal form's own ladder — its id rounded
     # down to the ten. When that one has no thumbnail, fall back to the best base we do have.
     art = top - top % 10
