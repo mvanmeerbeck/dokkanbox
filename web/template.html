@@ -1,0 +1,64 @@
+<!doctype html><html lang="fr"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dokkan — Guideline</title>
+<style>
+  :root{--bg:#0b0e14;--panel:#141925;--line:#26304a;--text:#e7ecf6;--muted:#8895b3;--accent:#4aa3ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:400 15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+  header{padding:28px 22px 8px;max-width:980px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 4px;letter-spacing:-.01em}
+  header p{color:var(--muted);margin:0;font-size:13.5px}
+  .wrap{max-width:980px;margin:0 auto;padding:12px 22px 80px;display:flex;flex-direction:column;gap:22px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .meta{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    padding:14px 16px 2px}
+  .meta h2{font-size:15px;margin:0;font-weight:600}
+  .dim{font:500 12px/1 ui-monospace,monospace;color:var(--accent);white-space:nowrap}
+  .src{margin:0;padding:0 16px 12px;color:var(--muted);
+    font:12px/1.4 ui-monospace,monospace;word-break:break-all}
+  /* le décor : une réglette de 100 u, damier léger, pour juger les tailles à l'œil.
+     Tous les composants partagent la MÊME échelle (1 u = 1 px) → tailles comparables. */
+  .hold{position:relative;overflow:auto;padding:20px;
+    background:
+      repeating-linear-gradient(90deg,transparent 0,transparent 99px,#ffffff14 99px,#ffffff14 100px),
+      repeating-linear-gradient(0deg,transparent 0,transparent 99px,#ffffff14 99px,#ffffff14 100px),
+      #0d1220}
+  .node-box{position:relative}
+  .node-box .node{position:absolute}
+  /* libellés d'onglet (police du jeu approximée : gras arrondi) */
+  .bmlabel{position:absolute;display:flex;align-items:center;justify-content:center;
+    color:#dfe6f2;font:700 22px/1 "Arial Rounded MT Bold","Arial Black",system-ui;
+    text-shadow:0 1px 0 #0007}
+  .bmlabel.on{color:#fff;text-shadow:0 1px 2px #0009}
+  .stage-frame{border:0;display:block;background:transparent}
+  /* échelle : le contenu déborde en largeur sur petit écran → il défile dans sa carte,
+     ce qui préserve l'échelle réelle (1 u = 1 px) plutôt que de fausser les tailles */
+</style>
+<header>
+  <h1>Dokkan — Guideline</h1>
+  <p>Composants recomposés depuis le jeu, tous à la même échelle : <b>1 unité de maquette = 1 px</b>.
+     La grille de fond a un pas de 100 u. On pioche ici.</p>
+</header>
+<div class="wrap">
+  <section class="card">
+    <div class="meta"><h2>Menu du bas — footer</h2><span class="dim">852 × 144 u</span></div>
+    <p class="src">menu-footer.html · com_foo_base + LWF globalnavi_btn + police du jeu</p>
+    <div class="hold">
+      <iframe class="stage-frame" src="menu-footer.html" style="width:852px;height:144px" scrolling="no"></iframe>
+    </div>
+  </section>
+  <section class="card">
+    <div class="meta"><h2>Onglets (3) — btn_tab_03</h2><span class="dim">640 × 80 u</span></div>
+    <p class="src">common/btn_tab_03.json · com_btn_tab_03_*.png · texte : police du jeu btn_normal.fnt</p>
+    <div class="hold">
+      <div class="node-box" style="width:640px;height:80px"><img class="node" src="template/common/btn/com_btn_tab_03_left_on.png" alt="" style="left:20px;top:8px;width:202px;height:62px">
+      <img class="node" src="template/common/btn/com_btn_tab_03_middle_off.png" alt="" style="left:220px;top:8px;width:202px;height:62px">
+      <img class="node" src="template/common/btn/com_btn_tab_03_right_off.png" alt="" style="left:420px;top:8px;width:202px;height:62px">
+      <img class="node" src="template/labels/onglets3_font_text_01.png" alt="Entraînement" style="left:38.5px;top:22.5px;width:163px;height:35px">
+      <img class="node" src="template/labels/onglets3_font_text_02.png" alt="Éveil" style="left:291.0px;top:22.5px;width:58px;height:35px">
+      <img class="node" src="template/labels/onglets3_font_text_03.png" alt="Apt. de lien" style="left:449.5px;top:22.5px;width:141px;height:35px"></div>
+    </div>
+  </section>
+</div>
+</html>
