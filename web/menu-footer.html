@@ -1,0 +1,65 @@
+<!doctype html><meta charset="utf-8"><title>Menu Dokkan</title>
+<style>
+  html,body{margin:0;background:#0b1a10;display:grid;place-items:center;min-height:100vh}
+  /* La maquette fait 852 x 350, mais le menu du jeu n'en montre que la bande haute (les
+     boutons + le motif derrière) ; le grand cadran du bas de com_foo_base est masqué par la
+     console DÉPART dans le jeu. On rogne donc à STRIP unités de haut. */
+  .footer{position:relative;width:min(852px,100vw);aspect-ratio:852/175;overflow:hidden}
+  /* la région complète (350) posée en haut : le bas déborde et est rogné */
+  .region{position:absolute;left:0;top:0;width:100%;aspect-ratio:852/350}
+  .region>*{position:absolute}
+  #bg{left:0;bottom:4px;width:100%;height:calc(320/350*100%)}
+  .btn{width:calc(150/852*100%);aspect-ratio:1}         /* canvas d'un bouton */
+  .lbl{display:flex;align-items:center;justify-content:center;color:#fff;
+    font:800 clamp(9px,1.7vw,15px)/1 "Arial Narrow",Arial,sans-serif;
+    letter-spacing:.02em;text-shadow:0 1px 2px #000,0 0 3px #063;white-space:nowrap}
+</style>
+<div class="footer">
+  <div class="region" id="f">
+    <img id="bg" src="footer/com_foo_base.png" alt="">
+  </div>
+</div>
+<script src="footer/lwf.js"></script>
+<script>
+LWF.useCanvasRenderer();
+const W=852,H=350, f=document.getElementById('f');
+// 5 boutons : timeline ef_00X, centre (cx, cy) en repère bas-gauche, libellé
+// ef_001..005 = boutons verts statiques (1 frame) ; ef_006/007 = état sélectionné animé
+// (halo jaune, 30 frames). L'onglet actif de l'écran d'accueil est ACCUEIL → ef_006.
+const BTN=[
+  {ef:'ef_006',cx:165.5,label:'ACCUEIL'},
+  {ef:'ef_002',cx:295.5,label:'ÉQUIPE'},
+  {ef:'ef_003',cx:425.5,label:'INVOCATION'},
+  {ef:'ef_004',cx:555.5,label:'MAGASIN'},
+  {ef:'ef_005',cx:685.5,label:'ÉCHANGE'},
+];
+const CY=259.5, SPAN=150, R=2;
+const insts=[];                      // toutes les instances LWF, animées par une seule boucle
+for(const b of BTN){
+  const cv=document.createElement('canvas'); cv.className='btn'; cv.width=cv.height=SPAN*R;
+  cv.style.left=((b.cx-SPAN/2)/W*100)+'%';
+  cv.style.top=((H-CY-SPAN/2)/H*100)+'%';
+  f.appendChild(cv);
+  LWF.ResourceCache.get().loadLWF({lwf:'globalnavi_btn.lwf',prefix:'footer/',worker:false,stage:cv,
+    onload:lwf=>{ if(!lwf)return;
+      lwf.rendererFactory.clearColor=null;
+      lwf.rootMovie.moveTo(SPAN*R/2,SPAN*R/2); lwf.rootMovie.scaleTo(R,R);
+      lwf.rootMovie.attachMovie(b.ef,'m');
+      lwf.exec(0); lwf.render();          // première image tout de suite
+      insts.push(lwf);
+    }});
+  const lb=document.createElement('div'); lb.className='lbl'; lb.textContent=b.label;
+  lb.style.left=((b.cx-63)/W*100)+'%'; lb.style.top=((H-197-36)/H*100)+'%';
+  lb.style.width=(126/W*100)+'%'; lb.style.height=(36/H*100)+'%';
+  f.appendChild(lb);
+}
+// une seule boucle pour tous : delta borné et jamais nul, pour que la sous-boucle du halo
+// (Symbol_btn_frame_on_loop, qui tourne après la frame 30) avance de façon continue
+let prev=performance.now();
+(function tick(now){
+  let dt=(now-prev)/1000; prev=now;
+  if(!(dt>0)||dt>0.1) dt=1/60;         // onglet en arrière-plan / horloge figée → pas de saut
+  for(const lwf of insts){ lwf.exec(dt); lwf.render(); }
+  requestAnimationFrame(tick);
+})(prev);
+</script>
