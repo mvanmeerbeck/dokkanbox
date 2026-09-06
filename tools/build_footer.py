@@ -28,16 +28,18 @@ FH = env('FH', 165)                        # hauteur de la bande visible, en uni
 # 5 colonnes régulières, mesurées sur le rendu du jeu (centres en fraction de largeur)
 COLS = [0.092, 0.296, 0.500, 0.704, 0.908]
 
-BTN_CY = env('BTN_CY', 68)                 # centre vertical des boutons (unités depuis le haut)
-LBL_CY = env('LBL_CY', 131)                # centre vertical des libellés
+BTN_CY = env('BTN_CY', 76)                 # centre vertical des boutons (unités depuis le haut)
+LBL_CY = env('LBL_CY', 134)                # centre vertical des libellés
 FONT_SZ = env('FONT_SZ', 29)               # taille de police (unités)
 LBL_W = env('LBL_W', 165)                  # largeur de boîte d'un libellé (unités)
 LBL_H = env('LBL_H', 34)
 
 CW = env('CW', 165)                        # boîte de canevas d'un bouton (unités)
 CH = env('CH', 176)
-BTN_SCALE = env('BTN_SCALE', 1.12)         # échelle des hexagones (1 = natif)
-BG_CY = env('BG_CY', 95)                   # centre vertical du fond com_foo_base
+BTN_SCALE = env('BTN_SCALE', 1.19)         # échelle des hexagones (1 = natif)
+BG_TOP = env('BG_TOP', 42)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
+                                           # mesuré dans le jeu : le vert commence à 115u au-dessus
+                                           # du bas, soit 50u sous le haut de la bande)
 
 BTN = [('ef_006', 'ACCUEIL'), ('ef_002', 'ÉQUIPE'), ('ef_003', 'INVOCATION'),
        ('ef_004', 'MAGASIN'), ('ef_005', 'ÉCHANGE')]
@@ -49,8 +51,10 @@ def py(u):   return u / FH * 100                       # unité verticale → %
 
 def main():
     bgn = Image.open(os.path.join(FOOT, 'com_foo_base.png')).size   # 852 × 320
+    # fond dessiné à l'échelle native (852 de large = pleine largeur), ancré par son bord haut ;
+    # il est plus haut que la bande visible, le surplus déborde sous l'écran comme dans le jeu
     els = [f'<img id="bg" src="footer/com_foo_base.png" alt="" '
-           f'style="left:0;top:{py(BG_CY - bgn[1] / 2):.4f}%;'
+           f'style="left:0;top:{py(BG_TOP):.4f}%;'
            f'width:100%;height:{py(bgn[1]):.4f}%">']
 
     btns = []
