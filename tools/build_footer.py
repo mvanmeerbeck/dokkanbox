@@ -26,7 +26,7 @@ W = 852.0                                  # largeur du footer (= com_foo_base),
 FH = env('FH', 144)                        # hauteur de la bande visible, en unités de page
 
 # 5 colonnes régulières centrées ; COL_GAP = écart entre deux boutons (fraction de largeur)
-COL_GAP = env('COL_GAP', 0.203)
+COL_GAP = env('COL_GAP', 0.163)
 COLS = [0.5 + (i - 2) * COL_GAP for i in range(5)]
 
 BTN_CY = env('BTN_CY', 65)                 # centre vertical des boutons (unités depuis le haut)
@@ -40,7 +40,7 @@ LBL_H = env('LBL_H', 34)
 CW = env('CW', 150)                        # boîte de canevas d'un bouton (unités)
 CH = env('CH', 150)
 BTN_SCALE = env('BTN_SCALE', 1.0)         # échelle des hexagones (1 = natif)
-BTN_SX = env('BTN_SX', 1.18)               # étirement horizontal des hexagones (comme le footer du jeu)
+BTN_SX = env('BTN_SX', 1.0)               # étirement horizontal des hexagones (comme le footer du jeu)
 BG_OP = env('BG_OP', 1.0)                 # opacité du fond : le jeu fond com_foo_base avec le ciel
 BG_TOP = env('BG_TOP', 76)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
                                            # mesuré dans le jeu : le vert commence à 115u au-dessus

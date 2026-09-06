@@ -14,17 +14,17 @@
 </style>
 <div class="footer" id="f">
   <img id="bg" src="footer/com_foo_base.png" alt="" style="left:0;top:52.7778%;opacity:1.00;width:100%;height:222.2222%">
-  <div class="lbl" style="left:-0.2831%;top:56.9444%;width:19.3662%;height:23.6111%">ACCUEIL</div>
-  <div class="lbl" style="left:20.0169%;top:56.9444%;width:19.3662%;height:23.6111%">ÉQUIPE</div>
+  <div class="lbl" style="left:7.7169%;top:56.9444%;width:19.3662%;height:23.6111%">ACCUEIL</div>
+  <div class="lbl" style="left:24.0169%;top:56.9444%;width:19.3662%;height:23.6111%">ÉQUIPE</div>
   <div class="lbl" style="left:40.3169%;top:56.9444%;width:19.3662%;height:23.6111%">INVOCATION</div>
-  <div class="lbl" style="left:60.6169%;top:56.9444%;width:19.3662%;height:23.6111%">MAGASIN</div>
-  <div class="lbl" style="left:80.9169%;top:56.9444%;width:19.3662%;height:23.6111%">ÉCHANGE</div>
+  <div class="lbl" style="left:56.6169%;top:56.9444%;width:19.3662%;height:23.6111%">MAGASIN</div>
+  <div class="lbl" style="left:72.9169%;top:56.9444%;width:19.3662%;height:23.6111%">ÉCHANGE</div>
 </div>
 <script src="footer/lwf.js"></script>
 <script>
 LWF.useCanvasRenderer();
-const BTN=[{"ef": "ef_006", "left": 0.5972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_002", "left": 20.8972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_003", "left": 41.1972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_004", "left": 61.4972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_005", "left": 81.7972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}];
-const R=2, K=1.000, SX=1.180, CWpx=150*R, CHpx=150*R, insts=[], f=document.getElementById('f');
+const BTN=[{"ef": "ef_006", "left": 8.5972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_002", "left": 24.8972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_003", "left": 41.1972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_004", "left": 57.4972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}, {"ef": "ef_005", "left": 73.7972, "top": -6.9444, "wpc": 17.6056, "hpc": 104.1667}];
+const R=2, K=1.000, SX=1.000, CWpx=150*R, CHpx=150*R, insts=[], f=document.getElementById('f');
 for(const b of BTN){
   const cv=document.createElement('canvas'); cv.width=CWpx; cv.height=CHpx;
   cv.style.cssText='position:absolute;left:'+b.left+'%;top:'+b.top+'%;width:'+b.wpc+'%;height:'+b.hpc+'%';
