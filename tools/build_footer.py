@@ -23,21 +23,21 @@ OUT = os.path.join(WEB, 'menu-footer.html')
 def env(name, default): return float(os.environ.get(name, default))
 
 W = 852.0                                  # largeur du footer (= com_foo_base), en px de page
-FH = env('FH', 165)                        # hauteur de la bande visible, en unités de page
+FH = env('FH', 144)                        # hauteur de la bande visible, en unités de page
 
 # 5 colonnes régulières, mesurées sur le rendu du jeu (centres en fraction de largeur)
 COLS = [0.092, 0.296, 0.500, 0.704, 0.908]
 
-BTN_CY = env('BTN_CY', 76)                 # centre vertical des boutons (unités depuis le haut)
-LBL_CY = env('LBL_CY', 134)                # centre vertical des libellés
+BTN_CY = env('BTN_CY', 65)                 # centre vertical des boutons (unités depuis le haut)
+LBL_CY = env('LBL_CY', 114)                # centre vertical des libellés
 FONT_SZ = env('FONT_SZ', 29)               # taille de police (unités)
 LBL_W = env('LBL_W', 165)                  # largeur de boîte d'un libellé (unités)
 LBL_H = env('LBL_H', 34)
 
-CW = env('CW', 165)                        # boîte de canevas d'un bouton (unités)
-CH = env('CH', 176)
-BTN_SCALE = env('BTN_SCALE', 1.19)         # échelle des hexagones (1 = natif)
-BG_TOP = env('BG_TOP', 42)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
+CW = env('CW', 150)                        # boîte de canevas d'un bouton (unités)
+CH = env('CH', 150)
+BTN_SCALE = env('BTN_SCALE', 1.0)         # échelle des hexagones (1 = natif)
+BG_TOP = env('BG_TOP', 72)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
                                            # mesuré dans le jeu : le vert commence à 115u au-dessus
                                            # du bas, soit 50u sous le haut de la bande)
 
