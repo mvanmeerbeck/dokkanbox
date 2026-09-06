@@ -477,7 +477,7 @@
     let attente = 0;
     champ.addEventListener("input", () => {
       clearTimeout(attente);
-      attente = setTimeout(() => { state.nom = champ.value; paint(); }, 180);
+      attente = setTimeout(() => { state.nom = champ.value; resume(); paint(); }, 180);
     });
   }
   /* What a tile animates, in one place: the render lists them for every owned card, and a
@@ -567,7 +567,23 @@
   back.addEventListener("pointerleave", () => { if (survolEl) survolEl.innerHTML = "&nbsp;"; });
   addEventListener("pointerup", () => { peint = null; });
 
-  function sync() { syncs.forEach(f => f()); paint(); }
+  /* Ce que le panneau replié annonce. Sans cela un filtre laissé actif se traduit par une
+     grille amputée dont plus rien ne dit pourquoi. */
+  const resumeEl = document.getElementById("fResume");
+  function resume() {
+    const p = [];
+    if (state.cols !== 5) p.push(state.cols + " colonnes");
+    if (state.rare >= 0) p.push(RARE[state.rare].toUpperCase());
+    if (state.type >= 0) p.push(["AGI", "TEC", "INT", "PUI", "END"][state.type]);
+    if (state.ev >= 0) p.push(["sans éveil", "Z", "Dokkan", "Z suprême",
+                               "Z suprême super"][state.ev]);
+    if (state.own !== "tous") p.push(state.own === "oui" ? "possédées" : "manquantes");
+    if (state.nom) p.push("« " + state.nom + " »");
+    resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
+    resumeEl.classList.toggle("vide", !p.length);
+  }
+
+  function sync() { syncs.forEach(f => f()); resume(); paint(); }
 
   /* a frame counter, so the claim is checkable rather than asserted */
   let frames = 0, mark = performance.now();

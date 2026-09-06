@@ -5,16 +5,22 @@
 <div class="wrap">
   <h1>My Dokkan Box</h1>
 
-  <div class="bar">
-    <fieldset><legend>Colonnes · le jeu en met 5</legend><div class="row" id="cCols"></div></fieldset>
-    <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
-    <fieldset><legend>Type</legend><div class="row" id="cType"></div></fieldset>
-    <fieldset><legend>Éveil maximum</legend><div class="row" id="cEv"></div></fieldset>
-    <fieldset><legend>Collection</legend><div class="row" id="cOwn"></div></fieldset>
-    <fieldset><legend>Chercher</legend>
-      <input id="cName" type="search" placeholder="nom de la carte" autocomplete="off"></fieldset>
-    <div class="stat" id="stat"></div>
-  </div>
+  <!-- Six rangées de boutons occupaient tout l'écran d'un téléphone avant la première
+       carte. Repliées, elles tiennent sur une ligne — qui dit ce qui est actif, sans quoi
+       un panneau fermé masque une grille silencieusement restreinte. -->
+  <details class="filtres">
+    <summary><span class="titre">Filtres</span><span class="resume" id="fResume"></span></summary>
+    <div class="bar">
+      <fieldset><legend>Colonnes · le jeu en met 5</legend><div class="row" id="cCols"></div></fieldset>
+      <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
+      <fieldset><legend>Type</legend><div class="row" id="cType"></div></fieldset>
+      <fieldset><legend>Éveil maximum</legend><div class="row" id="cEv"></div></fieldset>
+      <fieldset><legend>Collection</legend><div class="row" id="cOwn"></div></fieldset>
+      <fieldset><legend>Chercher</legend>
+        <input id="cName" type="search" placeholder="nom de la carte" autocomplete="off"></fieldset>
+      <div class="stat" id="stat"></div>
+    </div>
+  </details>
 
   <div class="score" id="score"></div>
   <div class="survol" id="survol">&nbsp;</div>
@@ -26,16 +32,4 @@
     <canvas id="pulses"></canvas>
   </div>
 
-  <h2>Le montage</h2>
-  <p class="note">Les auras s'intercalent entre le cadre et l'illustration. Un canevas de
-    recouvrement ne peut pas se glisser au milieu des couches d'une vignette, alors la
-    grille est éclatée en quatre plans superposés&nbsp;: tous les cadres, le canevas des
-    auras, tout le reste des vignettes, le canevas des pulsations. Les deux plans de grille
-    partagent leur gabarit, donc leurs cases coïncident au pixel.</p>
-  <p class="note">Par image&nbsp;: trois rendus de chronologie, puis un
-    <span class="mono">drawImage</span> par vignette animée visible. La fusion additive est
-    faite dans le canevas comme le jeu la fait, et le mode de fusion CSS n'est payé
-    qu'<b>une fois</b> pour toute la grille au lieu d'une fois par vignette.</p>
-  <p class="foot">Les positions des vignettes sont calculées à partir du gabarit de la
-    grille plutôt que mesurées, pour qu'aucune image n'ait à interroger la mise en page.</p>
 </div>

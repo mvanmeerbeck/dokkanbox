@@ -22,11 +22,23 @@ body{background:var(--bg);color:var(--text);margin:0;
 .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:var(--muted)}
 .wrap{max-width:1180px;margin:0 auto;padding:44px 26px 80px}
 h1{font-size:27px;font-weight:600;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
-.lede{color:var(--muted);max-width:64ch;margin:0 0 26px;font-weight:300}
-h2{font-size:17px;font-weight:600;margin:38px 0 12px}
-p.note{color:var(--muted);font-size:13.5px;max-width:70ch;margin:0 0 10px;font-weight:300}
 .bar{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;padding:14px 16px;
   background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:20px}
+/* Le panneau replié doit dire ce qu'il filtre : fermé et muet, il masquerait une grille
+   restreinte sans que rien ne l'indique. */
+details.filtres{margin-bottom:20px}
+details.filtres>summary{list-style:none;cursor:pointer;display:flex;gap:11px;align-items:baseline;
+  padding:11px 16px;background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  -webkit-tap-highlight-color:transparent}
+details.filtres>summary::-webkit-details-marker{display:none}
+details.filtres>summary::before{content:"\203A";color:var(--muted);transition:transform .15s;
+  display:inline-block;align-self:center;line-height:1}
+details.filtres[open]>summary::before{transform:rotate(90deg)}
+details.filtres[open]>summary{border-radius:8px 8px 0 0;border-bottom:0}
+details.filtres>.bar{border-radius:0 0 8px 8px;margin-bottom:0}
+summary .titre{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+summary .resume{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--text)}
+summary .resume.vide{color:var(--muted)}
 fieldset{border:0;padding:0;margin:0;min-width:0}
 legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .row{display:flex;gap:5px;flex-wrap:wrap}
@@ -104,8 +116,6 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
 .cell i.g{background-repeat:no-repeat;background-image:var(--atlas)}
 .cell.max i.g{background-image:var(--atlas-max)}
 .cell b.txt{transform:skewX(-10deg);transform-origin:0 100%}
-.foot{color:var(--muted);font-size:12.5px;margin-top:34px;padding-top:16px;
-  border-top:1px solid var(--line);font-weight:300}
 @media (max-width:560px){
   .wrap{padding:22px 10px 60px}
   h1{font-size:22px}
@@ -116,7 +126,4 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
   /* poussé au bout de sa ligne, il finissait tassé contre le bord */
   .score .lien{margin-left:0}
 }
-table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
-th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
-th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
 </style>
