@@ -27,7 +27,8 @@ h1{font-size:27px;font-weight:600;letter-spacing:-.02em;margin:0 0 10px;text-wra
 /* Le panneau replié doit dire ce qu'il filtre : fermé et muet, il masquerait une grille
    restreinte sans que rien ne l'indique. */
 details.filtres{margin-bottom:20px}
-details.filtres>summary{list-style:none;cursor:pointer;display:flex;gap:11px;align-items:baseline;
+details.filtres>summary{list-style:none;cursor:pointer;display:flex;gap:7px 11px;
+  flex-wrap:wrap;align-items:baseline;
   padding:11px 16px;background:var(--panel);border:1px solid var(--line);border-radius:8px;
   -webkit-tap-highlight-color:transparent}
 details.filtres>summary::-webkit-details-marker{display:none}
@@ -39,8 +40,7 @@ details.filtres>.bar{border-radius:0 0 8px 8px;margin-bottom:0}
 summary .titre{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 summary .resume{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--text)}
 summary .resume.vide{color:var(--muted)}
-/* Il n'apparaît que lorsqu'il y a quelque chose à remettre à zéro : un bouton qui ne
-   fait rien apprend au lecteur à ne plus le lire. */
+/* Toujours là : caché tant qu'aucun filtre n'est posé, on le cherche sans le trouver. */
 summary .raz{margin-left:auto;font:inherit;font-size:11.5px;padding:3px 9px;border-radius:5px;
   cursor:pointer;background:#171A22;color:var(--muted);border:1px solid var(--line)}
 summary .raz:hover{color:var(--text);border-color:#39435A}
@@ -159,7 +159,7 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
        un panneau fermé masque une grille silencieusement restreinte. -->
   <details class="filtres">
     <summary><span class="titre">Filtres</span><span class="resume" id="fResume"></span>
-      <button type="button" class="raz" id="fRaz" hidden>réinitialiser</button></summary>
+      <button type="button" class="raz" id="fRaz">effacer les filtres</button></summary>
     <div class="bar">
       <fieldset><legend>Colonnes · le jeu en met 5</legend><div class="row" id="cCols"></div></fieldset>
       <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
@@ -16298,7 +16298,8 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     document.getElementById("score").innerHTML =
       `<span><b>${possede.size}</b> / ${CARDS.length}</span>` + parts +
       `<span class="part lien">` +
-      `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a></span>`;
+      `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a>` +
+      ` · <a href="#" id="vider">tout décocher</a></span>`;
     document.getElementById("exp").onclick = e => {
       e.preventDefault();
       const b = new Blob([JSON.stringify([...possede])], { type: "application/json" });
@@ -16313,6 +16314,15 @@ Util.compressFile = function(inStream, outStream, props, progress) {
         try { possede = new Set(JSON.parse(t)); sauver(); sync(); } catch (err) {}
       });
       i.click();
+    };
+    /* Des centaines de cases cochées à la main, effaçables d'un doigt et sans retour :
+       c'est le seul geste de la page qui mérite qu'on demande confirmation. */
+    document.getElementById("vider").onclick = e => {
+      e.preventDefault();
+      if (!possede.size) return;
+      if (!confirm("Décocher les " + possede.size + " cartes de votre box ?\n"
+                 + "C'est sans retour : exportez-les d'abord si vous voulez pouvoir y revenir.")) return;
+      possede.clear(); sauver(); sync();
     };
   }
 
@@ -16376,7 +16386,6 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     if (state.nom) p.push("« " + state.nom + " »");
     resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
     resumeEl.classList.toggle("vide", !p.length);
-    razEl.hidden = !p.length;
   }
   razEl.addEventListener("click", e => {
     /* le bouton est dans le summary : sans cela le clic replierait aussi le panneau */

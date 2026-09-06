@@ -504,7 +504,8 @@
     document.getElementById("score").innerHTML =
       `<span><b>${possede.size}</b> / ${CARDS.length}</span>` + parts +
       `<span class="part lien">` +
-      `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a></span>`;
+      `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a>` +
+      ` · <a href="#" id="vider">tout décocher</a></span>`;
     document.getElementById("exp").onclick = e => {
       e.preventDefault();
       const b = new Blob([JSON.stringify([...possede])], { type: "application/json" });
@@ -519,6 +520,15 @@
         try { possede = new Set(JSON.parse(t)); sauver(); sync(); } catch (err) {}
       });
       i.click();
+    };
+    /* Des centaines de cases cochées à la main, effaçables d'un doigt et sans retour :
+       c'est le seul geste de la page qui mérite qu'on demande confirmation. */
+    document.getElementById("vider").onclick = e => {
+      e.preventDefault();
+      if (!possede.size) return;
+      if (!confirm("Décocher les " + possede.size + " cartes de votre box ?\n"
+                 + "C'est sans retour : exportez-les d'abord si vous voulez pouvoir y revenir.")) return;
+      possede.clear(); sauver(); sync();
     };
   }
 
@@ -582,7 +592,6 @@
     if (state.nom) p.push("« " + state.nom + " »");
     resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
     resumeEl.classList.toggle("vide", !p.length);
-    razEl.hidden = !p.length;
   }
   razEl.addEventListener("click", e => {
     /* le bouton est dans le summary : sans cela le clic replierait aussi le panneau */
