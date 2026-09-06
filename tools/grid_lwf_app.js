@@ -498,7 +498,7 @@
       .reverse().join("");
     document.getElementById("score").innerHTML =
       `<span><b>${possede.size}</b> / ${CARDS.length}</span>` + parts +
-      `<span class="part" style="margin-left:auto">` +
+      `<span class="part lien">` +
       `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a></span>`;
     document.getElementById("exp").onclick = e => {
       e.preventDefault();

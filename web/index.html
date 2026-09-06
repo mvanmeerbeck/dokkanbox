@@ -1,4 +1,9 @@
 <meta charset="utf-8">
+<!-- Sans ceci un navigateur mobile suppose une page conçue pour un écran d'ordinateur :
+     il pose un viewport de mise en page de 980 px et dézoome pour le faire tenir. La grille
+     est alors dessinée pour 980 px puis réduite, le ciel (fixé, large de innerWidth) n'atteint
+     plus le bord droit, et tout ce qui est centré paraît décalé vers la gauche. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>My Dokkan Box</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -19,7 +24,7 @@ h2{font-size:17px;font-weight:600;margin:38px 0 12px}
 p.note{color:var(--muted);font-size:13.5px;max-width:70ch;margin:0 0 10px;font-weight:300}
 .bar{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;padding:14px 16px;
   background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:20px}
-fieldset{border:0;padding:0;margin:0}
+fieldset{border:0;padding:0;margin:0;min-width:0}
 legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .row{display:flex;gap:5px;flex-wrap:wrap}
 .pick{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:5px;cursor:pointer;
@@ -76,6 +81,11 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
   color:var(--muted);margin:0 0 10px;min-height:1.4em}
 .survol b{color:var(--text);font-weight:600}
 .score .part{font-size:12px}
+/* exporter / importer : des liens, pas de la navigation — le bleu par défaut
+   les fait passer pour un défaut de style */
+.score .lien{margin-left:auto}
+.score .lien a{color:var(--gold);text-decoration:none;border-bottom:1px solid #4A3A18}
+.score .lien a:hover{border-bottom-color:var(--gold)}
 .score i{font-style:normal;color:var(--text)}
 #cName{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:5px;width:190px;
   background:#171A22;color:var(--text);border:1px solid var(--line)}
@@ -86,6 +96,16 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
 .cell b.txt{transform:skewX(-10deg);transform-origin:0 100%}
 .foot{color:var(--muted);font-size:12.5px;margin-top:34px;padding-top:16px;
   border-top:1px solid var(--line);font-weight:300}
+@media (max-width:560px){
+  .wrap{padding:22px 10px 60px}
+  h1{font-size:22px}
+  .bar{padding:11px 12px;gap:13px}
+  /* poussé à droite par margin-left:auto, le compteur tient sur sa propre ligne */
+  .stat{margin-left:0;flex-basis:100%;text-align:left}
+  .score{gap:6px 14px}
+  /* poussé au bout de sa ligne, il finissait tassé contre le bord */
+  .score .lien{margin-left:0}
+}
 table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
 th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
 th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
@@ -16255,7 +16275,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
       .reverse().join("");
     document.getElementById("score").innerHTML =
       `<span><b>${possede.size}</b> / ${CARDS.length}</span>` + parts +
-      `<span class="part" style="margin-left:auto">` +
+      `<span class="part lien">` +
       `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a></span>`;
     document.getElementById("exp").onclick = e => {
       e.preventDefault();
