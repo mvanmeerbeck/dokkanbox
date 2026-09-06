@@ -6,7 +6,7 @@ les boutons dépassent au-dessus — c'est ce que montre le jeu. Les 5 boutons s
 du vrai LWF globalnavi_btn (ef_001..005 statiques, ef_006 = onglet actif animé). Sortie servie :
 web/menu-footer.html + assets sous web/footer/.
 """
-import json, os
+import base64, json, os
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -42,7 +42,7 @@ def main():
     # bande visible : du haut des boutons jusque sous les libellés
     btn_top = min(H - (N(b)['y'] + N(b)['h'] / 2) - SPAN / 2 for b, *_ in BTN)
     lbl_bot = max(H - N(f)['y'] for *_, f, _ in [(0, 0, f, 0) for _, _, f, _ in BTN])
-    STRIP = int(lbl_bot + 6)
+    STRIP = int(lbl_bot + 22)
 
     els = [f'<img id="bg" src="footer/com_foo_base.png" alt="" '
            f'style="left:{bg_left / W * 100:.4f}%;top:{bg_top / STRIP * 100:.4f}%;'
@@ -63,14 +63,26 @@ def main():
         els.append(f'<div class="lbl" style="left:{lx:.4f}%;top:{lt:.4f}%;'
                    f'width:{lw:.4f}%;height:{lh:.4f}%">{label}</div>')
 
+    # la vraie police du jeu (default.cpk de l'APK) : la version globale rend le style
+    # FOT-NewRodinProN-EB en Helvetica Neue LT Condensed. On l'embarque et on applique le
+    # style text_subtitle exact (styles.json) : taille 24, italique par cisaillement ~10°
+    # (comme les chiffres), contour noir 2px, ombre noire.
+    font_b64 = base64.b64encode(open(os.path.join(FOOT, 'dokkan_ui.otf'), 'rb').read()).decode()
+    # contour de 2 unités : huit ombres portées autour du glyphe
+    dirs = [(dx, dy) for dx in (-2, 0, 2) for dy in (-2, 0, 2) if (dx, dy) != (0, 0)]
+    outline = ','.join(f'calc(var(--u)*{dx}) calc(var(--u)*{dy}) 0 #000' for dx, dy in dirs)
     html = f"""<!doctype html><meta charset="utf-8"><title>Menu Dokkan</title>
 <style>
+  @font-face{{font-family:DokkanUI;src:url(data:font/otf;base64,{font_b64}) format("opentype")}}
   html,body{{margin:0;min-height:100vh;display:grid;place-items:center;background:#05070c}}
-  .footer{{position:relative;width:min({W}px,100vw);aspect-ratio:{W}/{STRIP};overflow:hidden}}
+  .footer{{position:relative;width:min({W}px,100vw);aspect-ratio:{W}/{STRIP};overflow:hidden;
+    --u:calc(min(100vw,{W}px)/{W})}}   /* 1 unité de maquette en px */
   .footer>*{{position:absolute}}
-  .lbl{{display:flex;align-items:center;justify-content:center;color:#fff;
-    font:800 clamp(9px,1.7vw,15px)/1 "Arial Narrow",Arial,sans-serif;
-    letter-spacing:.02em;text-shadow:0 1px 2px #000,0 0 4px #000;white-space:nowrap}}
+  .lbl{{display:flex;align-items:center;justify-content:center;color:#fff;white-space:nowrap;
+    font-family:DokkanUI,"Arial Narrow",sans-serif;font-size:calc(var(--u)*24);
+    transform:skewX(-10deg);   /* l'italique du jeu = cisaillement ~10°, pas une police oblique */
+    z-index:50;   /* au-dessus des canevas de boutons, ajoutés après dans le DOM */
+    text-shadow:{outline}}}
 </style>
 <div class="footer" id="f">
 {chr(10).join('  ' + e for e in els)}
@@ -89,6 +101,10 @@ for(const b of BTN){{
       lwf.rootMovie.moveTo({SPAN}*R/2,{SPAN}*R/2); lwf.rootMovie.scaleTo(R,R);
       lwf.rootMovie.attachMovie(b.ef,'m'); lwf.exec(0); lwf.render(); insts.push(lwf); }}}});
 }}
+// les canevas sont ajoutés après les libellés : on remet les libellés en dernier pour
+// qu'ils passent devant les hexagones (le z-index seul ne suffit pas, le skew des libellés
+// crée son propre contexte d'empilement)
+f.querySelectorAll('.lbl').forEach(l=>f.appendChild(l));
 let prev=performance.now();
 (function tick(now){{ let dt=(now-prev)/1000; prev=now; if(!(dt>0)||dt>0.1) dt=1/60;
   for(const l of insts){{ l.exec(dt); l.render(); }} requestAnimationFrame(tick); }})(prev);
