@@ -69,7 +69,7 @@ def main():
 
     # police du jeu : la source nomme black.otf pour ces libellés (poids Black condensé du
     # default.cpk). Contour 2 u = huit ombres portées ; ombre du style = une ombre vers le bas.
-    font_b64 = base64.b64encode(open(os.path.join(FOOT, 'dokkan_ui_black.otf'), 'rb').read()).decode()
+    font_b64 = base64.b64encode(open(os.path.join(FOOT, 'dokkan_ui.otf'), 'rb').read()).decode()
     dirs = [(dx, dy) for dx in (-2, 0, 2) for dy in (-2, 0, 2) if (dx, dy) != (0, 0)]
     outline = ','.join(f'calc(var(--u)*{dx}) calc(var(--u)*{dy}) 0 #000' for dx, dy in dirs)
     shadow = 'calc(var(--u)*0) calc(var(--u)*2) calc(var(--u)*1) #000'
