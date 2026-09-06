@@ -111,7 +111,10 @@ for r in csv.DictReader(open(CARD_CATS, encoding='utf-8', errors='replace')):
 # second language slots in as cards_<lang>.csv + card_categories_<lang>.csv, same tables from
 # that region's base; only the name columns are read from it. So adding French later is a
 # data drop, no code change — LANGS grows on its own and every name becomes a per-language map.
-PRIMARY = 'en'
+# The primary base's language — whatever the game was extracted in (see extract_db.py). The
+# unsuffixed cards.csv holds its names; other languages come as cards_<lang>.csv.
+_LANGF = os.path.join(HERE, 'work', 'db', 'lang.txt')
+PRIMARY = open(_LANGF).read().strip() if os.path.exists(_LANGF) else 'en'
 CARDS_DIR = os.path.dirname(CSV)
 extra = sorted(m.group(1) for f in os.listdir(CARDS_DIR)
                if (m := re.match(r'cards_([a-z]{2})\.csv$', f)))
