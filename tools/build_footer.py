@@ -30,7 +30,7 @@ COLS = [0.092, 0.296, 0.500, 0.704, 0.908]
 
 BTN_CY = env('BTN_CY', 65)                 # centre vertical des boutons (unités depuis le haut)
 LBL_CY = env('LBL_CY', 102)                # centre vertical des libellés
-FONT_SZ = env('FONT_SZ', 29)               # taille de police (unités)
+FONT_SZ = env('FONT_SZ', 24)               # taille de police (unités)
 LBL_W = env('LBL_W', 165)                  # largeur de boîte d'un libellé (unités)
 LBL_H = env('LBL_H', 34)
 
