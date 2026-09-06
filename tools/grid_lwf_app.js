@@ -154,7 +154,12 @@
     fit(cSky, innerWidth, innerHeight);
     /* two screens of band at most, and never past the texture cap */
     band.h = Math.max(innerHeight, Math.min(innerHeight * 2, Math.floor(CAP / dpr())));
-    band.x = Math.round(cell.w * 0.6);
+    /* The effect layer reaches past the grid so a star on an edge card is not cut — but
+       only as far as the window allows. Wider than the window and the page becomes
+       scrollable sideways, which shifts everything centred to the left and leaves a
+       black band on the right. The room available is the page's own margin. */
+    const libre = Math.min(r.left, document.documentElement.clientWidth - r.right);
+    band.x = Math.max(0, Math.min(Math.round(cell.w * 0.6), Math.floor(libre)));
     for (const c of [cAur, cPul]) {
       bandD = fit(c, r.width + band.x * 2, band.h);
       c.style.left = -band.x + "px";

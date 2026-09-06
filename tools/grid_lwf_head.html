@@ -9,11 +9,14 @@
 <style>
 :root{--bg:#0C0D11;--panel:#12141A;--line:#232733;--text:#E8EAF0;--muted:#8A91A3;--gold:#E0A94A}
 *{box-sizing:border-box}
-/* The effect layers reach past the grid on both sides so a star at the edge is not cut.
-   That overflow must not widen the document: it would make the page scrollable sideways
-   and, worse, throw the centring of everything else off by the same amount. `clip` does
-   this without turning the root into a scroll container; `hidden` is the older fallback. */
+/* Cards on the outer columns push their badge and their star past the frame, exactly as
+   the game does — at the edge of the screen that overhang has nowhere to go, and left
+   alone it makes the page scrollable sideways: everything centred then sits to the left
+   with a black band on the right. Clipping the root alone is not enough, the value
+   propagates to the viewport and the root itself stops clipping; body has to carry it
+   too, and only does so because the root's own value is no longer `visible`. */
 html{overflow-x:hidden;overflow-x:clip}
+body{overflow-x:hidden;overflow-x:clip}
 body{background:var(--bg);color:var(--text);margin:0;
   font:400 15px/1.65 "Public Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 .mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:var(--muted)}
