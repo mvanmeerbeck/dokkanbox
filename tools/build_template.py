@@ -46,6 +46,20 @@ def _load_bmfont():
 _BM = _load_bmfont()
 
 
+def _bmlabel_native_width(text, letterspace):
+    _, chars, kern, _ = _BM
+    pen, prev = 0, None
+    for ch in text:
+        c = chars.get(ord(ch))
+        if not c:
+            prev = ord(ch); continue
+        if prev is not None:
+            pen += kern.get((prev, ord(ch)), 0)
+        pen += c['xadvance'] + letterspace
+        prev = ord(ch)
+    return max(1, pen)
+
+
 def render_bmlabel_png(text, scale, letterspace, dst):
     """rend `text` avec la BMFont du jeu et l'écrit en PNG ; renvoie (w, h) affichés."""
     atlas, chars, kern, lineH = _BM
@@ -68,6 +82,33 @@ def render_bmlabel_png(text, scale, letterspace, dst):
     dw, dh = max(1, round(W * scale)), round(H * scale)
     img.resize((dw, dh)).save(dst)
     return dw, dh
+
+
+def render_action_buttons(cid):
+    """Une rangée de boutons d'action de la box, en assets du jeu : base com_btn_01 (couleur
+    par sémantique) + libellé rendu dans la police du jeu, auto-ajusté pour tenir dans la
+    boîte du bouton (celle de btn_01.json : 224 × 54, centrée)."""
+    actions = [('Exporter', 'green'), ('Importer', 'blue'), ('Tout décocher', 'red')]
+    BW, BH, GAP = 262, 72, 24               # taille réelle de com_btn_01 + espace entre boutons
+    BOX_W = 224                              # boîte du libellé (btn_01.json font_ok)
+    W = len(actions) * BW + (len(actions) - 1) * GAP
+    os.makedirs(os.path.join(TPL_ASSETS, 'labels'), exist_ok=True)
+    els = []
+    for i, (label, color) in enumerate(actions):
+        fetch_image(f'common/btn/com_btn_01_{color}')
+        bx = i * (BW + GAP)
+        els.append(f'<img class="node" src="template/common/btn/com_btn_01_{color}.png" alt="" '
+                   f'style="left:{bx}px;top:0;width:{BW}px;height:{BH}px">')
+        # libellé : échelle qui le fait tenir dans la boîte (btn_normal est en taille 36)
+        nat = _bmlabel_native_width(label, -1)
+        scale = min(0.78, (BOX_W - 12) / nat)
+        dst = os.path.join(TPL_ASSETS, 'labels', f'{cid}_{i}.png')
+        lw, lh = render_bmlabel_png(label, scale, -1, dst)
+        cx, cy = bx + BW / 2, BH / 2
+        els.append(f'<img class="node" src="template/labels/{cid}_{i}.png" alt="{label}" '
+                   f'style="left:{cx - lw / 2:.1f}px;top:{cy - lh / 2:.1f}px;'
+                   f'width:{lw}px;height:{lh}px">')
+    return W, BH, f'<div class="node-box" style="width:{W}px;height:{BH}px">{"".join(els)}</div>'
 
 
 def fetch_image(rel):
@@ -147,6 +188,12 @@ def main():
         w, h, inner = render_layout(c['id'], lay)
         blocks.append((c['titre'], c['source'], w, h,
                        f'<div class="node-box" style="width:{w}px;height:{h}px">{inner}</div>'))
+
+    # Boutons d'action de la box (Exporter / Importer / Tout décocher)
+    w, h, html = render_action_buttons('actions')
+    blocks.append(('Actions box — exporter / importer / tout décocher',
+                   'common/btn_01.json · com_btn_01_{green,blue,red}.png · texte : btn_normal.fnt',
+                   w, h, html))
 
     cards = []
     for titre, source, w, h, html in blocks:
