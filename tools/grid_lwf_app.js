@@ -570,6 +570,7 @@
   /* Ce que le panneau replié annonce. Sans cela un filtre laissé actif se traduit par une
      grille amputée dont plus rien ne dit pourquoi. */
   const resumeEl = document.getElementById("fResume");
+  const razEl = document.getElementById("fRaz");
   function resume() {
     const p = [];
     if (state.cols !== 5) p.push(state.cols + " colonnes");
@@ -581,7 +582,16 @@
     if (state.nom) p.push("« " + state.nom + " »");
     resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
     resumeEl.classList.toggle("vide", !p.length);
+    razEl.hidden = !p.length;
   }
+  razEl.addEventListener("click", e => {
+    /* le bouton est dans le summary : sans cela le clic replierait aussi le panneau */
+    e.preventDefault(); e.stopPropagation();
+    state.cols = 5; state.rare = state.type = state.ev = -1;
+    state.own = "tous"; state.nom = "";
+    document.getElementById("cName").value = "";
+    sync();
+  });
 
   function sync() { syncs.forEach(f => f()); resume(); paint(); }
 

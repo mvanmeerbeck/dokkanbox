@@ -39,6 +39,11 @@ details.filtres>.bar{border-radius:0 0 8px 8px;margin-bottom:0}
 summary .titre{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 summary .resume{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12px;color:var(--text)}
 summary .resume.vide{color:var(--muted)}
+/* Il n'apparaît que lorsqu'il y a quelque chose à remettre à zéro : un bouton qui ne
+   fait rien apprend au lecteur à ne plus le lire. */
+summary .raz{margin-left:auto;font:inherit;font-size:11.5px;padding:3px 9px;border-radius:5px;
+  cursor:pointer;background:#171A22;color:var(--muted);border:1px solid var(--line)}
+summary .raz:hover{color:var(--text);border-color:#39435A}
 fieldset{border:0;padding:0;margin:0;min-width:0}
 legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
 .row{display:flex;gap:5px;flex-wrap:wrap}
@@ -153,7 +158,8 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
        carte. Repliées, elles tiennent sur une ligne — qui dit ce qui est actif, sans quoi
        un panneau fermé masque une grille silencieusement restreinte. -->
   <details class="filtres">
-    <summary><span class="titre">Filtres</span><span class="resume" id="fResume"></span></summary>
+    <summary><span class="titre">Filtres</span><span class="resume" id="fResume"></span>
+      <button type="button" class="raz" id="fRaz" hidden>réinitialiser</button></summary>
     <div class="bar">
       <fieldset><legend>Colonnes · le jeu en met 5</legend><div class="row" id="cCols"></div></fieldset>
       <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
@@ -16358,6 +16364,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
   /* Ce que le panneau replié annonce. Sans cela un filtre laissé actif se traduit par une
      grille amputée dont plus rien ne dit pourquoi. */
   const resumeEl = document.getElementById("fResume");
+  const razEl = document.getElementById("fRaz");
   function resume() {
     const p = [];
     if (state.cols !== 5) p.push(state.cols + " colonnes");
@@ -16369,7 +16376,16 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     if (state.nom) p.push("« " + state.nom + " »");
     resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
     resumeEl.classList.toggle("vide", !p.length);
+    razEl.hidden = !p.length;
   }
+  razEl.addEventListener("click", e => {
+    /* le bouton est dans le summary : sans cela le clic replierait aussi le panneau */
+    e.preventDefault(); e.stopPropagation();
+    state.cols = 5; state.rare = state.type = state.ev = -1;
+    state.own = "tous"; state.nom = "";
+    document.getElementById("cName").value = "";
+    sync();
+  });
 
   function sync() { syncs.forEach(f => f()); resume(); paint(); }
 
