@@ -1,0 +1,244 @@
+(function () {
+  const IMG = JSON.parse(document.getElementById("tileImages").textContent);
+  const FONT = JSON.parse(document.getElementById("tileFont").textContent);
+  const ANIM = JSON.parse(document.getElementById("tileAnims").textContent);
+
+  const TYPES = [
+    { i: 0, short: "AGI", name: "Agilité" },
+    { i: 1, short: "TEC", name: "Technique" },
+    { i: 2, short: "INT", name: "Intelligence" },
+    { i: 3, short: "PUI", name: "Puissance" },
+    { i: 4, short: "END", name: "Endurance" }
+  ];
+  const RARES = [
+    { i: 0, short: "N", movie: 44 },
+    { i: 1, short: "R", movie: 40 },
+    { i: 2, short: "SR", movie: 35 },
+    { i: 3, short: "SSR", movie: 26 },
+    { i: 4, short: "UR", movie: 19 },
+    { i: 5, short: "LR", movie: 12 }
+  ];
+  const CLASSES = [
+    { p: 0, label: "sans classe" },
+    { p: 1, label: "Super" },
+    { p: 2, label: "Extrême" }
+  ];
+
+  const state = { type: 1, rare: 5, cls: 1, band: "lv", lock: true, on: false, rainbow: false };
+
+  /* ---- the game's own bitmap font, drawn glyph by glyph from its atlas ---- */
+  const atlas = new Image();
+  let atlasReady = false;
+  atlas.onload = () => { atlasReady = true; paintText(); };
+  atlas.src = FONT.atlas;
+
+  const txt = document.getElementById("bandText");
+  function measure(s) {
+    let w = 0;
+    for (const ch of s) { const g = FONT.glyphs[ch.codePointAt(0)]; if (g) w += g[6]; }
+    return w;
+  }
+  /* The canvas is trimmed to the ink of this very string, so the band can size it by
+     height without the font's empty ascender showing up as padding. */
+  function paintText() {
+    const s = state.band === "lv" ? FONT.samples.lv : FONT.samples.rate;
+    let y0 = Infinity, y1 = -Infinity;
+    for (const ch of s) {
+      const g = FONT.glyphs[ch.codePointAt(0)];
+      if (!g || !g[3]) continue;
+      if (g[5] < y0) y0 = g[5];
+      if (g[5] + g[3] > y1) y1 = g[5] + g[3];
+    }
+    if (y1 < y0) { y0 = 0; y1 = FONT.lineHeight; }
+    const w = Math.max(1, measure(s)), h = Math.max(1, y1 - y0);
+    txt.width = w; txt.height = h;
+    txt.setAttribute("aria-label", s);
+    const c = txt.getContext("2d");
+    c.clearRect(0, 0, w, h);
+    if (!atlasReady) return;
+    let x = 0;
+    for (const ch of s) {
+      const g = FONT.glyphs[ch.codePointAt(0)];
+      if (!g) continue;
+      if (g[2] && g[3]) c.drawImage(atlas, g[0], g[1], g[2], g[3], x + g[4], g[5] - y0, g[2], g[3]);
+      x += g[6];
+    }
+  }
+
+  /* ---- still layers ------------------------------------------------------ */
+  const elFrame = document.getElementById("lFrame");
+  const elArt = document.getElementById("lArt");
+  const elBadge = document.getElementById("lBadge");
+  const elPlank = document.getElementById("lPlank");
+  const elLock = document.getElementById("lLock");
+
+  function paint() {
+    elFrame.src = IMG.bg[state.type + "_" + Math.min(state.rare, 3)];
+    elBadge.src = IMG.type[state.cls * 10 + state.type];
+    elPlank.src = IMG.band[state.type + (state.on ? "_on" : "")];
+    elLock.hidden = !state.lock;
+    elLock.src = IMG.lock;
+    paintText();
+    const t = TYPES[state.type], r = RARES[state.rare];
+    document.getElementById("fFrame").textContent = "cha_base_0" + t.i + "_0" + r.i + ".png";
+    document.getElementById("fBand").textContent = "cha_base_bottom_0" + t.i + (state.on ? "_on" : "") + ".png";
+    document.getElementById("fBadge").textContent =
+      "cha_type_icon_" + String(state.cls * 10 + state.type).padStart(2, "0") + ".png";
+    document.getElementById("fPlate").textContent = "icon_rare_00000 · plaque " + r.short;
+  }
+  elArt.src = IMG.art;
+  document.getElementById("atlasShot").src = IMG.atlas;
+
+  /* ---- controls ---------------------------------------------------------- */
+  function group(id, items, get, set) {
+    const host = document.getElementById(id);
+    const made = items.map(it => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "pick"; b.textContent = it.label;
+      b.addEventListener("click", () => { set(it.value); sync(); });
+      host.appendChild(b);
+      return [b, it.value];
+    });
+    return () => made.forEach(([b, v]) => b.setAttribute("aria-pressed", String(get() === v)));
+  }
+  const syncs = [
+    group("cType", TYPES.map(t => ({ label: t.short, value: t.i })),
+      () => state.type, v => state.type = v),
+    group("cRare", RARES.map(r => ({ label: r.short, value: r.i })),
+      () => state.rare, v => state.rare = v),
+    group("cClass", CLASSES.map(c => ({ label: c.label, value: c.p })),
+      () => state.cls, v => state.cls = v),
+    group("cBand", [{ label: "Nv 120", value: "lv" }, { label: "Taux d’apparition", value: "rate" }],
+      () => state.band, v => state.band = v),
+    group("cState", [{ label: "au repos", value: false }, { label: "sélectionnée", value: true }],
+      () => state.on, v => state.on = v),
+    group("cLock", [{ label: "verrouillée", value: true }, { label: "libre", value: false }],
+      () => state.lock, v => state.lock = v),
+    group("cStar", [{ label: "dorée", value: false }, { label: "arc-en-ciel", value: true }],
+      () => state.rainbow, v => state.rainbow = v)
+  ];
+  function sync() { syncs.forEach(f => f()); paint(); onRare(); onStar(); }
+
+  /* ---- the two live timelines ------------------------------------------- */
+  let current = null;
+  const open = XMLHttpRequest.prototype.open, send = XMLHttpRequest.prototype.send;
+  XMLHttpRequest.prototype.open = function (m, u) {
+    this.__lwf = String(u).indexOf(".lwf") !== -1; this.__url = String(u);
+    return this.__lwf ? undefined : open.apply(this, arguments);
+  };
+  XMLHttpRequest.prototype.send = function () {
+    if (!this.__lwf) return send.apply(this, arguments);
+    const key = this.__url.replace(/^.*\//, "").replace(/\.lwf$/, "");
+    const bin = atob(ANIM[key].lwf), b = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+    const self = this;
+    setTimeout(() => {
+      for (const [k, v] of [["readyState", 4], ["status", 200], ["response", b.buffer]])
+        Object.defineProperty(self, k, { value: v, configurable: true });
+      if (self.onreadystatechange) self.onreadystatechange();
+    }, 0);
+  };
+  const desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, "src");
+  Object.defineProperty(HTMLImageElement.prototype, "src", {
+    configurable: true,
+    get() { return desc.get.call(this); },
+    set(v) {
+      const bank = current && ANIM[current] ? ANIM[current].img : null;
+      const k = bank && Object.keys(bank).find(n => String(v).indexOf(n) !== -1);
+      desc.set.call(this, k ? bank[k] : v);
+    }
+  });
+
+  LWF.useCanvasRenderer();
+  const status = document.getElementById("status");
+  let plate = null, star = null, attached = 0;
+
+  function run(lwf) {
+    let prev = performance.now();
+    (function step(now) {
+      lwf.exec((now - prev) / 1000); lwf.render(); prev = now;
+      requestAnimationFrame(step);
+    })(prev);
+  }
+
+  /* The plates carry no published name, so each is registered in the file's own tables
+     before it can be attached. */
+  function attachPlate() {
+    if (!plate) return;
+    const id = RARES[state.rare].movie, name = "PLATE_" + id;
+    if (plate.data.stringMap[name] === undefined) {
+      const sid = plate.data.strings.length;
+      plate.data.strings.push(name);
+      plate.data.stringMap[name] = sid;
+      plate.data.movieLinkageMap[sid] = plate.data.movieLinkages.length;
+      plate.data.movieLinkages.push({ stringId: sid, movieId: id });
+    }
+    if (plate.__shown) plate.__shown.moveTo(-9000, -9000);
+    const m = plate.rootMovie.attachMovie(name, "p" + (attached++));
+    if (m) { m.moveTo(120, 480); m.scaleTo(0.62, 0.62); plate.__shown = m; }
+  }
+  function attachStar() {
+    if (!star) return;
+    if (star.__shown) star.__shown.moveTo(-9000, -9000);
+    const m = star.rootMovie.attachMovie(state.rainbow ? "ef_003" : "ef_002", "s" + (attached++));
+    if (m) { m.moveTo(128, 128); m.scaleTo(2.8, 2.8); star.__shown = m; }
+  }
+  const onRare = () => attachPlate();
+  const onStar = () => attachStar();
+
+  const jobs = [
+    { file: "icon_rare_00000", canvas: "lPlate", done: l => { plate = l; attachPlate(); } },
+    { file: "icon_rare_20000", canvas: "lStar", done: l => { star = l; attachStar(); } }
+  ];
+  function pump() {
+    const job = jobs.shift();
+    if (!job) { status.textContent = "les deux animations tournent · 30 images par seconde"; return; }
+    current = job.file;
+    LWF.ResourceCache.get().loadLWF({
+      lwf: job.file + ".lwf", prefix: "./", worker: false,
+      stage: document.getElementById(job.canvas),
+      onload: lwf => {
+        if (lwf) { lwf.rendererFactory.clearColor = null; job.done(lwf); run(lwf); }
+        setTimeout(pump, 250);
+      }
+    });
+  }
+
+  /* ---- the frame matrix -------------------------------------------------- */
+  const mx = document.getElementById("matrix");
+  mx.appendChild(document.createElement("div"));
+  for (const r of RARES) {
+    const h = document.createElement("div"); h.className = "hd"; h.textContent = r.short;
+    mx.appendChild(h);
+  }
+  for (const t of TYPES) {
+    const rw = document.createElement("div"); rw.className = "rw"; rw.textContent = t.short;
+    mx.appendChild(rw);
+    for (const r of RARES) {
+      const box = document.createElement("div");
+      if (r.i >= 3) box.className = "same";
+      const im = document.createElement("img");
+      im.src = IMG.bg[t.i + "_" + Math.min(r.i, 3)];
+      im.alt = "Cadre " + t.short + " " + r.short;
+      im.loading = "lazy";
+      box.appendChild(im); mx.appendChild(box);
+    }
+  }
+
+  /* ---- the bands --------------------------------------------------------- */
+  const strip = document.getElementById("bands");
+  for (const t of TYPES) for (const v of ["", "_on"]) {
+    const fig = document.createElement("figure");
+    const plate2 = document.createElement("div"); plate2.className = "plate";
+    const im = document.createElement("img");
+    im.src = IMG.band[t.i + v]; im.alt = "Bandeau " + t.short;
+    im.style.width = "100%";
+    plate2.appendChild(im);
+    const cap = document.createElement("figcaption");
+    cap.textContent = "bottom_0" + t.i + v;
+    fig.append(plate2, cap); strip.appendChild(fig);
+  }
+
+  sync();
+  pump();
+})();

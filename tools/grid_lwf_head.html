@@ -1,0 +1,87 @@
+<meta charset="utf-8">
+<title>My Dokkan Box</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#0C0D11;--panel:#12141A;--line:#232733;--text:#E8EAF0;--muted:#8A91A3;--gold:#E0A94A}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);margin:0;
+  font:400 15px/1.65 "Public Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding:44px 26px 80px}
+h1{font-size:27px;font-weight:600;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--muted);max-width:64ch;margin:0 0 26px;font-weight:300}
+h2{font-size:17px;font-weight:600;margin:38px 0 12px}
+p.note{color:var(--muted);font-size:13.5px;max-width:70ch;margin:0 0 10px;font-weight:300}
+.bar{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;padding:14px 16px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:20px}
+fieldset{border:0;padding:0;margin:0}
+legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.row{display:flex;gap:5px;flex-wrap:wrap}
+.pick{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:5px;cursor:pointer;
+  background:#171A22;color:var(--muted);border:1px solid var(--line)}
+.pick[aria-pressed="true"]{background:#1E2431;color:var(--text);border-color:#39435A}
+.stat{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+.stat b{color:var(--gold);font-weight:500}
+
+/* Four planes over the same area, so a single canvas can slip between the frames and the
+   artwork — which is where the auras live (z 4 against 5). The two grids share their
+   template, so their cells line up exactly. */
+/* Each plane needs its own stacking context, otherwise the z-index every sprite carries
+   from the maquette (1..35) resolves against the ROOT context and climbs over the
+   canvases, which sit at z-index auto — the aura ends up under the frames and the
+   pulse under the star it is supposed to light. The tile page avoids this with
+   isolation on .tile; here the four planes are numbered instead. */
+/* No `isolation: isolate` here, deliberately: it makes this an opaque blend group, so the
+   sky vanishes behind the grid and the additive glows stop adding to it. The planes are
+   numbered instead, and each carries its own z-index — that is enough to keep the sprites'
+   own z-indexes (1..35) from leaking into the root context. */
+#stack{position:relative}
+/* the still sky, when the build provides one: it holds the page's ground until the
+   timeline is ready, and is dropped the moment the timeline draws its first frame */
+body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed}
+.plane{display:grid;gap:4px;grid-template-columns:repeat(var(--cols,6),1fr)}
+#back{position:relative;z-index:1}
+#auras{z-index:2}
+#front{position:absolute;inset:0;pointer-events:none;z-index:3}
+#pulses{z-index:4}
+/* The overlay only ever covers the viewport — sizing it to the whole grid would mean a
+   17 000 pixel tall texture, worse than what it replaces. It is fixed, and the drawing is
+   offset by wherever the grid currently sits. */
+/* The two effect layers are anchored IN the grid, not in the window. Scrolling then moves
+   them on the compositor, exactly like the cards they belong to — so a slow main thread
+   makes the animations late, never misplaced. Fixed to the window they drifted visibly
+   behind their tiles on a phone. The sky is the exception: in the game it does not scroll,
+   so it stays glued to the window and has nothing to lag behind. */
+#stack canvas{position:absolute;left:0;pointer-events:none;
+  mix-blend-mode:plus-lighter}
+/* outside #stack, so no cascade to fight: fixed to the window and behind everything */
+#sky{position:fixed;left:0;top:0;z-index:-1;pointer-events:none}
+.cell{position:relative;aspect-ratio:130/150}
+/* Not owned: still legible, clearly absent. Desaturating alone reads as a rendering
+   glitch; dimming alone reads as shadow. Together they read as "not yet". */
+.cell.non{filter:grayscale(.9) brightness(.4) contrast(.9)}
+#back .cell{cursor:pointer}
+#stack.peint{user-select:none}
+.score{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;margin:0 0 14px;
+  font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;color:var(--muted)}
+.score b{font-size:22px;color:var(--text);font-weight:600}
+/* A native tooltip is slow, easy to miss and not always shown; the name of the card under
+   the pointer belongs in the page. */
+.survol{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:12.5px;
+  color:var(--muted);margin:0 0 10px;min-height:1.4em}
+.survol b{color:var(--text);font-weight:600}
+.score .part{font-size:12px}
+.score i{font-style:normal;color:var(--text)}
+#cName{font:inherit;font-size:12.5px;padding:5px 9px;border-radius:5px;width:190px;
+  background:#171A22;color:var(--text);border:1px solid var(--line)}
+.cell img,.cell i,.cell b{position:absolute;display:block}
+.cell img{object-fit:contain}
+.cell i.g{background-repeat:no-repeat;background-image:var(--atlas)}
+.cell.max i.g{background-image:var(--atlas-max)}
+.cell b.txt{transform:skewX(-10deg);transform-origin:0 100%}
+.foot{color:var(--muted);font-size:12.5px;margin-top:34px;padding-top:16px;
+  border-top:1px solid var(--line);font-weight:300}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+</style>

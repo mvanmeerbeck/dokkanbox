@@ -1,0 +1,28 @@
+# Le dépôt porte les sources ET le site déployable : Vercel construit depuis git, donc
+# web/ doit être versionné. Tout le reste se régénère depuis les scripts de tools/.
+# (Pas de commentaire en fin de ligne : git prendrait le tout comme un motif.)
+
+# assets extraits du jeu, vignettes, APK — environ 500 Mo
+tools/work/
+tools/venv/
+
+# pages construites, dont une de 38 Mo
+design/*.html
+
+# 42 Mo chacun, reconstruits par tools/make_refpack.py
+spike-ios/refpack*.bin
+
+# engendré par xcodegen depuis project.yml
+spike-ios/DokkanScanSpike.xcodeproj/
+
+# captures et enregistrements de travail
+*.MP4
+*.mov
+Capture d’écran*.png
+*.ips
+
+.DS_Store
+
+# page construite mise de côté, 14,5 Mo
+tools/keep/grille-planches.html
+tools/__pycache__/

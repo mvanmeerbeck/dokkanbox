@@ -1,0 +1,264 @@
+<div class="page">
+  <h1>Cadre, fond et bandeau</h1>
+  <p class="lede">Les trois pièces qui manquaient à la vignette d'une unité, et la maquette
+    qui dit où les poser. Le cadre et son fond sont une seule image, le bandeau en est une
+    autre, le texte qu'il porte est écrit avec la police que le jeu embarque. Les
+    coordonnées sont lues dans le binaire de la version installée — et, cette fois,
+    la règle qui les applique aussi.</p>
+
+  <div class="stage">
+    <div>
+      <div class="tile" id="tile"></div>
+      <p class="caption">Chaque couche est posée par la règle que le jeu applique
+        lui-même, à partir de la maquette <span class="mono">character/chara_130</span>
+        de la version 6.5.5.</p>
+    </div>
+
+    <div class="side">
+      <ul class="layers" id="layerList"></ul>
+
+      <fieldset><legend>Type</legend><div class="row" id="cType"></div></fieldset>
+      <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
+      <fieldset><legend>Classe</legend><div class="row" id="cClass"></div></fieldset>
+      <fieldset><legend>Éveil</legend><div class="row" id="cStar"></div></fieldset>
+      <fieldset><legend>État</legend><div class="row" id="cState"></div></fieldset>
+      <fieldset><legend>Cadenas</legend><div class="row" id="cLock"></div></fieldset>
+      <fieldset><legend>Contenu du bandeau</legend><div class="row" id="cBand"></div></fieldset>
+      <fieldset><legend>Éveil Dokkan</legend><div class="row" id="cAwk"></div></fieldset>
+      <fieldset><legend>Niveau</legend><div class="row" id="cMax"></div></fieldset>
+      <fieldset><legend>Éveil Z suprême</legend><div class="row" id="cSeza"></div></fieldset>
+      <fieldset><legend>Langue</legend><div class="row" id="cLang"></div></fieldset>
+
+      <p class="status" id="status">chargement de l'animation…</p>
+    </div>
+  </div>
+
+  <h2>La règle, pas seulement les nombres</h2>
+  <p class="note">Une maquette de 130 × 150, l'origine en bas à gauche, et un nœud par
+    pièce. Mais connaître la boîte d'un nœud ne suffit pas : il faut savoir ce que le jeu
+    en fait. La fonction qui applique un nœud image tient en trois appels.</p>
+  <pre class="code"><b>setContentSize</b>(w, h)              <i>// la boîte de la maquette</i>
+<b>setPosition</b>(x + w/2, y + h/2)     <i>// son centre</i>
+<b>setAnchorPoint</b>(0.5, 0.5)          <i>// ancre au centre</i></pre>
+  <p class="note">Charger la texture réécrit ensuite la taille du contenu avec celle du
+    fichier. Le résultat&nbsp;: <b>l'image est dessinée à sa taille native multipliée par
+    son échelle, centrée sur le centre de la boîte</b>. Le <span class="mono">w</span> et
+    le <span class="mono">h</span> du nœud ne servent qu'au découpage neuf-tranches.</p>
+  <p class="note">La conséquence est contre-intuitive et c'est elle qui fait échouer les
+    reconstitutions&nbsp;: <b>le vide transparent à l'intérieur d'un PNG fait partie du
+    placement</b>. La plaque de rareté est un canevas de 60 × 60 dont l'encre ne fait que
+    51 × 25&nbsp;; rogner ce vide pour «&nbsp;caler&nbsp;» le badge le déplace. De même,
+    <span class="mono">com_label_lv</span> est un canevas de 120 × 40 dont l'encre est
+    collée au bord droit — c'est ce décalage qui pose le mot juste à gauche du nombre.</p>
+
+  <p class="note" style="margin-top:14px;">Les étiquettes de texte ont leur propre
+    applicateur, et une correction verticale explicite&nbsp;:</p>
+  <pre class="code"><b>position</b> = (x + w/2, <i>y + 3</i> + h/2)
+<b>ancre.y</b>  = 0.5 + échelle × (h − hauteur_de_ligne) / (2 × hauteur_de_ligne)</pre>
+  <p class="note">La police a une hauteur de ligne de 67 pixels pour des chiffres de 32,
+    posés bas dans la ligne. Centrer bêtement la boîte de ligne enverrait la moitié du
+    texte sous la vignette&nbsp;; c'est ce second terme qui l'en ressort et le pose au
+    milieu du bandeau. L'italique, lui, n'est pas dans la police — le jeu la penche avec
+    un nuanceur dont l'uniforme vaut <span class="mono">0x3E343958</span>, soit 0,17612,
+    la tangente de 10°.</p>
+  <pre class="code" id="maquette"></pre>
+
+  <h2>Le cadre et le fond sont le même fichier</h2>
+  <p class="note">C'est le point qui avait fait échouer les tentatives précédentes&nbsp;:
+    on cherchait deux images, un liseré et un fond. Il n'y en a qu'une.
+    <span class="mono">character_thumb_bg/cha_base_&lt;type&gt;_&lt;rareté&gt;.png</span>,
+    200&nbsp;× 200, réduite de moitié par la maquette, porte à la fois le liseré et
+    l'explosion de lumière derrière le personnage.</p>
+  <div class="matrix" id="matrix"></div>
+  <p class="mkey"><i></i> Les trois dernières colonnes sont le même fichier, octet pour
+    octet&nbsp;: SSR, UR et LR partagent un cadre. Ce qui les distingue, c'est la petite
+    plaque de rareté, pas le cadre.</p>
+
+  <h2>Le bandeau, et ce qu'il porte</h2>
+  <p class="note">Une plaque de 100 × 30 par type, posée à
+    <span class="mono">x&nbsp;15, y&nbsp;0</span> — exactement sous le cadre, exactement à
+    sa largeur, et sans étirement. Sa variante allumée sert quand l'unité est
+    sélectionnée. Elle ne contient aucun texte&nbsp;: le jeu l'écrit par-dessus.</p>
+  <div class="strip" id="bands"></div>
+
+  <div class="split" style="margin-top: 30px;">
+    <div>
+      <h3 style="margin:0 0 6px; font-size:13.5px;">« Nv » est une image, pas du texte</h3>
+      <p class="note" style="margin-bottom:12px;">C'est pour ça que le mot n'a pas la
+        couleur des chiffres&nbsp;: il vient de
+        <span class="mono">common/label/com_label_lv.png</span>, un fichier orange que le
+        nœud <span class="mono">image_label_lv</span> pose dans le bandeau. Le nombre, lui,
+        est écrit avec <span class="mono">font_num</span> dans la police
+        <span class="mono">number.fnt</span>, dont les glyphes sont blancs cernés de noir.
+        Deux pièces, deux couleurs, deux nœuds.</p>
+      <div class="atlas"><img id="atlasShot" alt="Atlas de glyphes number.png"></div>
+    </div>
+    <div>
+      <h3 style="margin:0 0 6px; font-size:13.5px;">Deux contenus, jamais ensemble</h3>
+      <p class="note" style="margin-bottom:12px;">Et le nombre change de couleur&nbsp;: le
+        contrôleur pose d'abord le blanc, puis l'écrase par du jaune
+        <span class="mono">(255, 255, 0)</span> dès que le niveau atteint son plafond —
+        deux appels <span class="mono">setTextColor</span> à la suite, le second sous
+        condition <span class="mono">niveau ≥ niveauMax</span>. Sur une vignette grisée, la
+        même paire devient <span class="mono">(128,128,128)</span> et
+        <span class="mono">(128,128,0)</span>, exactement la moitié.</p>
+      <p class="note" style="margin-bottom:12px;">Le bandeau porte cinq nœuds de texte, pas
+        deux. Le niveau utilise <span class="mono">font_num</span>, centré en x&nbsp;80, à
+        côté de l'image «&nbsp;Nv&nbsp;». Le taux utilise
+        <span class="mono">font_text</span>, boîte (17, 0, 96, 30), échelle 0,58&nbsp;: le
+        seul nœud qui soit à la fois à la taille des chiffres et centré sur le bandeau
+        lui-même — «&nbsp;55&nbsp;%&nbsp;» y tombe à x&nbsp;65,0 pour un bandeau centré en
+        65, signe compris, à une seule taille.</p>
+      <p class="note" style="margin-bottom:12px;">Trois nœuds restent sans emploi connu, et
+        ce sont eux qui m'ont égaré. <span class="mono">font_num02</span> (centré x&nbsp;51,5,
+        échelle 0,58, exemple «&nbsp;999&nbsp;»),
+        <span class="mono">font_num03</span> (même boîte, 0,5, «&nbsp;9999&nbsp;») et
+        <span class="mono">font_percent</span> (centré x&nbsp;83,5, échelle <b>0,4</b>,
+        exemple «&nbsp;%&nbsp;»). Ce dernier dessine bien un pourcent, mais aux deux tiers
+        de la hauteur d'un chiffre, et son couple avec
+        <span class="mono">font_num02</span> ne se centre pas sur le bandeau&nbsp;: ce n'est
+        pas l'affichage du taux. Les seuls sites d'appel que je trouve pour ces trois nœuds
+        les masquent et vident leur chaîne&nbsp;; à quoi ils servent, je l'ignore.</p>
+      <p class="note" style="margin-bottom:12px;">À noter&nbsp;: le taux d'invocation
+        détaillé n'est pas dans la vignette du tout. Il a sa propre maquette,
+        <span class="mono">gasha/gasha_chara_list_rare</span>, une rangée de 570&nbsp;× 30
+        où le pourcentage est une étiquette unique dont l'exemple est
+        <span class="mono">100.000%</span> — trois décimales, nombre et signe d'un seul
+        tenant.</p>
+      <p class="note" style="margin-bottom:12px;">Que les deux ne coexistent jamais n'est
+        pas une supposition&nbsp;: une seule routine s'en charge. Elle allume le groupe du
+        niveau — bandeau, étiquette, <span class="mono">font_num</span>,
+        <span class="mono">font_text</span>, badge — selon son paramètre, et dans le même
+        souffle <b>masque et vide</b> les quatre autres, <span class="mono">font_text02</span>,
+        <span class="mono">font_num02</span>, <span class="mono">font_num03</span> et
+        <span class="mono">font_percent</span>. Un seul <span class="mono">ret</span> dans
+        toute la fonction&nbsp;: c'est bien le même geste.</p>
+      <p class="note" style="margin-bottom:12px;">Un mot sur la manière, parce que ce
+        passage m'a fait me tromper deux fois. Les nœuds portent un texte d'exemple, lisible
+        dans le binaire&nbsp;: <span class="mono">font_num</span> «&nbsp;99&nbsp;»,
+        <span class="mono">font_num02</span> «&nbsp;9999&nbsp;»,
+        <span class="mono">font_percent</span> «&nbsp;999&nbsp;». Aucun ne contient de
+        virgule — un taux s'écrit donc en entier, pas en «&nbsp;3,50&nbsp;». Mais
+        l'exemple de <span class="mono">font_percent</span> est un reliquat&nbsp;: sa boîte
+        fait dix-neuf unités, la largeur d'un seul caractère, et son échelle de 0,4 contre
+        0,58 est celle d'un signe posé plus petit que son nombre. Les échantillons disent
+        le format, pas le contenu.</p>
+      <table>
+        <thead><tr><th>Clé</th><th>Français</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">training_main_scene/exp_bar/lv</td><td>Nv.</td></tr>
+          <tr><td class="mono">zbattle/team_select_lv</td><td>Nv. {0}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <h2>D'où vient chaque pièce</h2>
+  <p class="note">Trois sources. Le serveur d'images publie l'habillage fixe, le paquet
+    Android garde les polices et les textes, et la maquette est lue dans le binaire de la
+    version installée, récupéré sur le disque de l'émulateur.</p>
+  <table>
+    <thead><tr><th>Pièce</th><th>Fichier</th><th>Taille</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>Maquette</td><td class="mono">libcocos2dcpp.so → LayoutCharacterChara130</td><td class="mono">130 × 150</td><td>binaire 6.5.5</td></tr>
+      <tr><td>Cadre et fond</td><td class="mono">layout/image/character/character_thumb_bg/cha_base_%02d_%02d.png</td><td class="mono">200 × 200</td><td>serveur d'images</td></tr>
+      <tr><td>Bandeau</td><td class="mono">layout/image/character/cha_base_bottom_%02d.png</td><td class="mono">100 × 30</td><td>serveur d'images</td></tr>
+      <tr><td>Bandeau allumé</td><td class="mono">layout/image/character/cha_base_bottom_%02d_on.png</td><td class="mono">100 × 30</td><td>serveur d'images</td></tr>
+      <tr><td>Plaque de rareté</td><td class="mono">layout/image/character/cha_rare_sm_%s.png</td><td class="mono">60 × 60</td><td>serveur d'images</td></tr>
+      <tr><td>Étiquette « Nv »</td><td class="mono">layout/image/common/label/com_label_lv.png</td><td class="mono">120 × 40</td><td>serveur d'images</td></tr>
+      <tr><td>Étoiles d'éveil</td><td class="mono">layout/image/character/cha_evo_star%d.png</td><td class="mono">80 × 36 · 80 × 60</td><td>serveur d'images</td></tr>
+      <tr><td>Cadenas</td><td class="mono">layout/image/character/cha_icon_lock.png</td><td class="mono">40 × 40</td><td>serveur d'images</td></tr>
+      <tr><td>Badge de type</td><td class="mono">layout/image/character/cha_type_icon_%s%02d.png</td><td class="mono">130 × 130</td><td>serveur d'images</td></tr>
+      <tr><td>Illustration</td><td class="mono">character/thumb/card_%07d_thumb.png</td><td class="mono">250 × 250</td><td>serveur d'images</td></tr>
+      <tr><td>Éclat LR</td><td class="mono">outgame/effect/icon_rare_20000/icon_rare_20000.lwf</td><td class="mono">ef_001</td><td>serveur d'images</td></tr>
+      <tr><td>Police du texte</td><td class="mono">assets/fonts/fr.cpk → custom/number/number.fnt</td><td class="mono">atlas 512 × 512</td><td>paquet Android</td></tr>
+      <tr><td>Libellés</td><td class="mono">assets/locale/fr.lproj/Localizable.strings</td><td class="mono">279 Ko</td><td>paquet Android</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Les trois chronologies, et les états</h2>
+  <div class="gap">
+    <h3>Un seul fichier d'animation, deux usages</h3>
+    <p><span class="mono">icon_rare_20000.lwf</span> sert deux fois. Le nœud
+      <span class="mono">fla_bg_effect</span> y joue <span class="mono">ef_001</span>,
+      centré en <span class="mono">x 75, y 90</span>, avec un <span class="mono">z</span> de
+      4 contre 5 pour l'illustration&nbsp;: les éclairs passent <b>derrière</b> le
+      personnage, qui est détouré à 63&nbsp;%. Le contrôleur ne l'allume qu'à une condition
+      lisible telle quelle&nbsp;: <span class="mono">setVisible(rareté == 5)</span> — les LR,
+      et elles seules. La timeline boucle sans jamais se vider.</p>
+    <p style="margin-top:10px;">L'autre usage vient de
+      <span class="mono">PartsAwakenStar.cpp</span>, qui joue
+      <span class="mono">ef_002</span> par-dessus tout (<span class="mono">z 100</span>), à
+      la position du nœud <span class="mono">image_star_evo_big</span> décalée de
+      <span class="mono">(15, 0)</span> — le décalage est rangé dans une table
+      <span class="mono">{nom, x, y}</span> à côté du nom de l'animation. Il ne s'active que
+      si la rareté dépasse 3 et qu'un drapeau de la carte est levé. C'est la pulsation de la
+      grande étoile.</p>
+    <h3 style="margin-top:18px;">L'éveil Z suprême a sa propre chronologie</h3>
+    <p>Le troisième nœud d'animation, <span class="mono">fla_super_optimal_eff</span>,
+      partage la boîte du précédent — donc la même origine, le centre du cadre — mais joue
+      <span class="mono">super_optimal_eff.lwf</span> avec un
+      <span class="mono">z</span> de 3, sous l'aura LR et sous l'illustration. Le contrôleur
+      formate le nom de l'animation&nbsp;: <span class="mono">ef_{(type % 10) + 1:03d}</span>
+      — une variante par type, de <span class="mono">ef_001</span> pour AGI à
+      <span class="mono">ef_005</span> pour END. Mesuré image par image, l'anneau fait
+      <b>111 × 117 unités</b> pour un cadre de 100&nbsp;: il l'entoure d'environ cinq unités
+      de chaque côté.</p>
+    <p style="margin-top:10px;">Ces atlas sont des sprites <b>additifs</b>&nbsp;: 80&nbsp;%
+      de leurs pixels sont du noir opaque, et seule la lueur porte de la couleur. Composés
+      normalement, ils recouvrent la vignette d'un carré noir&nbsp;; ils sont donc fusionnés
+      ici comme le format l'entend. Même remarque pour les deux autres chronologies, et
+      c'est ce qui rend le liseré du cadre à nouveau visible sous l'aura.</p>
+
+    <h3 style="margin-top:18px;">Trois nœuds d'étoiles, pas un</h3>
+    <p>Le sélecteur tient en trois lignes&nbsp;: la rangée va dans
+      <span class="mono">image_star_evo</span>, ou dans
+      <span class="mono">image_star_evo_dokkan</span> (échelle 0,7, décalée à gauche) si la
+      carte est éveillée&nbsp;; et <span class="mono">image_star_evo_big</span> — la grande
+      étoile <span class="mono">cha_evo_star5</span>, seule des cinq à mesurer 80&nbsp;× 60 —
+      n'apparaît que dans ce second cas. Les fichiers de la rangée,
+      <span class="mono">cha_evo_star1</span> à <span class="mono">4</span>, mesurent tous
+      80&nbsp;× 36 pour une boîte de 80&nbsp;× 36&nbsp;; le cinquième fait 80&nbsp;× 60 et
+      ne rentre que dans <span class="mono">image_star_evo_big</span> (80&nbsp;× 50 à
+      l'échelle 0,85, soit 51 de haut). Forcé dans la rangée, il déborde de 12 unités en
+      haut comme en bas et vient buter exactement sur le bord droit de la vignette. Le test d'éveil est
+      <span class="mono">identifiant % 10 ≠ 0</span>&nbsp;: dans Dokkan, une carte de base
+      finit par 0 et ses formes éveillées par 1 à 9.</p>
+    <p style="margin-top:10px;">Deux vérifications valent d'être notées. Une archive
+      publique de la version <b>japonaise de septembre 2020</b> donne les mêmes nombres
+      partout <b>sauf le cadenas</b>, alors en haut à gauche
+      (<span class="mono">x 16, y 113</span>) et aujourd'hui dans le bandeau
+      (<span class="mono">x 4, y 1</span>). Et la maquette ne bouge pas d'une version à
+      l'autre&nbsp;: les 32 nœuds extraits de la <b>6.5.0</b> installée dans l'émulateur et
+      de la <b>6.5.5</b> publiée sont identiques, boîtes, échelles et superposition.</p>
+    <h3 style="margin-top:18px;">L'habillage est localisé, et pas qu'un peu</h3>
+    <p>Le serveur d'images sert un arbre par langue. En comparant fichier par fichier
+      l'arbre anglais et l'arbre français, <b>17 des 28 pièces de la vignette diffèrent</b>
+      — dont les <b>quinze</b> badges de type&nbsp;: le jeu français dit
+      <span class="mono">SUPER PUI</span>, <span class="mono">SUPER TEC</span>,
+      <span class="mono">END</span>, <span class="mono">EXTRÊME AGI</span> là où l'anglais
+      dit STR, TEQ, PHY, AGL — accent circonflexe compris. L'étiquette du niveau change
+      aussi (<span class="mono">Nv</span> contre <span class="mono">Lv</span>).</p>
+    <p style="margin-top:10px;">Le reste est commun&nbsp;: les cadres, les bandeaux, les
+      étoiles et les plaques de rareté sont identiques octet pour octet — la plaque LR ne
+      différait que par un ré-encodage, zéro pixel d'écart. Seules ces seize pièces changent,
+      et le sélecteur de langue ci-dessus ne remplace qu'elles.</p>
+    <p style="margin-top:10px;">Le serveur en publie quatre&nbsp;:
+      <span class="mono">fr</span>, <span class="mono">en</span>,
+      <span class="mono">de</span>, <span class="mono">es</span> — le paquet Android en
+      embarque deux de plus (<span class="mono">ko</span>, <span class="mono">zh</span>) que
+      le miroir ne sert pas. Les quatre habillages ne se contentent pas de traduire&nbsp;:
+      <span class="mono">SUPER PUI</span> devient <span class="mono">SUPER STR</span>,
+      <span class="mono">SÜPER-STR</span> avec un trait d'union en allemand, et
+      <span class="mono">FRZ SÚPER</span> en espagnol, où l'ordre des deux mots est inversé.
+      Le libellé du bandeau suit&nbsp;: <span class="mono">Nv</span>,
+      <span class="mono">Lv</span>, <span class="mono">Lv.</span>,
+      <span class="mono">NV</span> — et l'allemand, plus large, vient frôler le nombre. Les
+      chiffres, eux, restent tirés de la police française du paquet&nbsp;: ce sont les mêmes
+      glyphes partout.</p>
+  </div>
+
+  <p class="foot">Toutes les images, l'animation, l'atlas de la police et le lecteur du
+    format sont embarqués dans cette page. Rien n'est téléchargé à l'ouverture, et rien
+    n'a été redessiné.</p>
+</div>

@@ -1,0 +1,118 @@
+<title>Cadre, fond et bandeau</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* The three pieces that were still missing from the unit tile, each kept as the file the
+   game ships. The page is deliberately one dark room: the only colour that matters is
+   the colour of the game's own images. */
+:root {
+  --bg: #0C0D11; --panel: #14161B; --line: #23262E; --line2: #2E323C;
+  --text: #ECEDF0; --muted: #8E939D; --faint: #5A5F69; --accent: #58A6FF;
+  --gold: #E0B457;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "Public Sans", system-ui, sans-serif; font-size: 15px; line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.page { max-width: 960px; margin: 0 auto; padding: clamp(28px, 5vw, 56px) clamp(16px, 4vw, 32px) 90px; }
+
+h1 { margin: 0; font-size: clamp(21px, 3vw, 27px); font-weight: 700; letter-spacing: -0.015em; text-wrap: balance; }
+.lede { margin: 9px 0 0; color: var(--muted); max-width: 62ch; }
+h2 { margin: clamp(40px, 5vw, 56px) 0 3px; font-size: 15px; font-weight: 700; }
+.note { margin: 0 0 18px; font-size: 13px; color: var(--muted); max-width: 68ch; }
+p { text-wrap: pretty; }
+
+/* ---- the assembled tile ------------------------------------------------ */
+/* Every layer is placed from the game's own maquette, character/chara_130.json:
+   a 130 x 150 box with the origin at the bottom left, so top = (150 - y - h). */
+.stage { display: flex; gap: clamp(22px, 4vw, 44px); align-items: flex-start; flex-wrap: wrap; margin-top: 30px; }
+
+.tile { position: relative; width: 260px; aspect-ratio: 130 / 150; flex: 0 0 auto;
+  isolation: isolate; }
+/* The effect atlases are additive sprites: their quads are opaque black except where the
+   glow is. Drawn normally they cover the tile with a black square, so the timelines are
+   composited the way the format means them to be. */
+.tile canvas.lwf { mix-blend-mode: plus-lighter; }
+.tile .node { position: absolute; display: block; }
+.tile img.node { object-fit: contain; }
+.tile [hidden] { display: none !important; }
+.tile canvas.node { pointer-events: none; transform-origin: 50% 50%; }
+
+.side { flex: 1 1 300px; min-width: 280px; }
+.layers { margin: 0 0 22px; padding: 0; list-style: none; font-size: 13px; }
+.layers li { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.layers li:last-child { border-bottom: 0; }
+.layers b { font-weight: 500; flex: 0 0 96px; }
+.layers span { color: var(--faint); font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 11.5px; }
+.layers em { font-style: normal; color: var(--gold); font-size: 11px; }
+
+fieldset { border: 0; margin: 0 0 14px; padding: 0; }
+legend { padding: 0; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; color: var(--faint); margin-bottom: 7px; }
+.row { display: flex; flex-wrap: wrap; gap: 6px; }
+button.pick {
+  font: inherit; font-size: 12.5px; padding: 5px 11px; border-radius: 5px; cursor: pointer;
+  background: var(--panel); color: var(--muted); border: 1px solid var(--line2);
+}
+button.pick:hover { color: var(--text); }
+button.pick[aria-pressed="true"] { background: #1F2733; color: var(--text); border-color: #3A4A61; }
+button.pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.caption { margin: 16px 0 0; font-size: 12.5px; color: var(--faint); max-width: 46ch; }
+
+/* ---- the maquette listing ---------------------------------------------- */
+pre.code {
+  margin: 0; padding: 14px 16px; background: #05070A; border: 1px solid var(--line);
+  border-radius: 6px; overflow-x: auto; font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11.5px; line-height: 1.7; color: var(--muted);
+}
+pre.code b { color: var(--text); font-weight: 500; }
+pre.code i { color: var(--gold); font-style: normal; }
+
+/* ---- the frame matrix --------------------------------------------------- */
+.matrix { display: grid; grid-template-columns: 54px repeat(6, 1fr); gap: 7px; align-items: center; }
+.matrix .hd { font-size: 11px; color: var(--faint); text-align: center; letter-spacing: 0.05em; }
+.matrix .rw { font-size: 11.5px; color: var(--muted); }
+.matrix img { width: 100%; display: block; border-radius: 4px; }
+.matrix .same { position: relative; }
+.matrix .same::after {
+  content: ""; position: absolute; inset: -3px; border-radius: 6px;
+  border: 1px solid rgba(224,180,87,.5);
+}
+.mkey { display: flex; align-items: center; gap: 8px; margin: 14px 0 0; font-size: 12.5px; color: var(--muted); }
+.mkey i { width: 15px; height: 15px; border-radius: 3px; border: 1px solid rgba(224,180,87,.6); background: rgba(224,180,87,.13); flex: 0 0 auto; }
+
+/* ---- strips ------------------------------------------------------------- */
+.strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.strip figure { margin: 0; }
+.strip .plate { background: #05070A; border: 1px solid var(--line); border-radius: 5px; padding: 12px 10px; display: flex; align-items: center; justify-content: center; min-height: 58px; }
+.strip img { display: block; max-width: 100%; }
+.strip figcaption { margin: 6px 0 0; font-size: 11px; color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; text-align: center; }
+
+.atlas { border: 1px solid var(--line); border-radius: 6px; background: #05070A; padding: 10px; overflow-x: auto; }
+.atlas img { display: block; width: 100%; max-width: 330px; }
+
+.split { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: clamp(18px, 3vw, 32px); align-items: start; }
+
+dl.meta { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 5px 14px; font-size: 13px; }
+dl.meta dt { color: var(--faint); }
+dl.meta dd { margin: 0; }
+dl.meta dd.mono { font-size: 12px; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--faint); font-weight: 500; font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
+td.mono { font-size: 11.5px; color: var(--muted); }
+
+.gap { border: 1px solid var(--line2); border-radius: 7px; padding: 16px 18px; background: var(--panel); }
+.gap h3 { margin: 0 0 6px; font-size: 13.5px; font-weight: 700; }
+.gap p { margin: 0; font-size: 13px; color: var(--muted); }
+
+.status { margin: 14px 0 0; font-size: 12px; color: var(--faint); }
+.foot { margin: 46px 0 0; padding-top: 20px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--faint); max-width: 74ch; }
+.foot a { color: var(--accent); }
+</style>

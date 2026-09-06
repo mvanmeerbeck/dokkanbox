@@ -1,0 +1,61 @@
+<div class="wrap">
+  <h1>La grille de collection</h1>
+  <p class="lede">Quatre cent soixante-quinze cartes réelles, chacune reconstituée depuis
+    les fichiers du jeu et posée aux coordonnées que le binaire donne. Le but ici n'est plus
+    la fidélité d'une vignette mais le passage à l'échelle&nbsp;: ce qui tenait pour une
+    carte ne tient pas pour cinq cents.</p>
+
+  <div class="bar">
+    <fieldset><legend>Colonnes</legend><div class="row" id="cCols"></div></fieldset>
+    <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
+    <fieldset><legend>Animations</legend><div class="row" id="cAnim"></div></fieldset>
+    <fieldset><legend>Démonstration</legend><div class="row" id="cDemo"></div></fieldset>
+    <div class="stat" id="stat"></div>
+  </div>
+
+  <div id="grid"></div>
+
+  <h2>Toutes les combinaisons</h2>
+  <p class="note">Une carte réelle par rareté, déclinée dans les états que le contrôleur
+    sait produire. Le miroir d'images ne servant que des formes de base, les états éveillés
+    sont ici <b>appliqués</b> à ces cartes plutôt que tirés de leurs données&nbsp;: la
+    composition vient du binaire, la combinaison est une démonstration.</p>
+  <div id="matrix"></div>
+
+  <h2>Ce qui a dû changer pour tenir</h2>
+  <p class="note">Le texte du bandeau était un canevas par vignette. Sur une grille c'est
+    absurde&nbsp;: le texte ne bouge jamais. Chaque chiffre est ici un
+    <span class="mono">&lt;i&gt;</span> qui découpe l'atlas de la police du jeu par
+    <span class="mono">background-position</span> — aucun canevas, aucun script au
+    rendu.</p>
+  <p class="note">Les animations étaient une instance du lecteur LWF par vignette, chacune
+    redessinant jusqu'à 300&nbsp;000 pixels par image, soit 18&nbsp;Mpx/s. Vingt vignettes
+    animées suffisaient à saturer la machine. Elles sont maintenant <b>précuites</b>&nbsp;:
+    chaque chronologie a été jouée une fois hors ligne, image par image, dans une planche
+    de sprites que le CSS parcourt avec <span class="mono">steps()</span>. Le lecteur a
+    quitté la page.</p>
+  <p class="note">Précuire ne suffisait pas. Une couche animée coûte <b>d'exister</b>, pas
+    d'être visible&nbsp;: elle continue de battre hors écran, et sa fusion additive l'oblige
+    à relire ce qu'il y a derrière. Sur une grille entièrement animée cela faisait
+    1 425 couches et la page ne rendait plus. Chaque vignette se contente donc de
+    <b>déclarer</b> ce qu'elle doit jouer&nbsp;; un observateur fabrique les couches quand
+    elle approche de l'écran et les jette quand elle en sort. Le compte tombe de 1 425 à
+    <b>49</b>, et le compteur en haut à droite l'affiche en direct.</p>
+  <table>
+    <thead><tr><th>Chronologie</th><th>Images</th><th>Planche</th><th>Poids</th></tr></thead>
+    <tbody id="baked"></tbody>
+  </table>
+
+  <p class="note">Aucune carte de ce lot n'est en éveil Z suprême ni en forme éveillée&nbsp;:
+    le miroir d'images ne sert que les formes de base, et la base de cartes le confirme —
+    les 475 identifiants finissent par zéro. Une seule est LR, et c'est la seule aura que
+    les données justifient. La bascule «&nbsp;toutes animées&nbsp;» applique malgré tout
+    les trois animations à chaque vignette — l'anneau d'éveil suprême, l'étoile qui pulse
+    et la rangée d'étoiles décalée&nbsp;: ce n'est pas une donnée, c'est la seule façon de
+    voir ce que coûte une grille entièrement animée.</p>
+
+  <p class="foot">Cartes, raretés, éléments et niveaux maximum viennent de la table
+    <span class="mono">cards</span> de la base du jeu. Les vignettes viennent du serveur
+    d'images. La maquette est extraite du binaire par un script, sans une seule adresse
+    codée en dur. Rien n'est redessiné.</p>
+</div>

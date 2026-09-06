@@ -1,0 +1,72 @@
+<title>La grille de collection</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0C0D11; --panel:#12141A; --line:#232733; --text:#E8EAF0; --muted:#8A91A3;
+  --gold:#E0A94A; --accent:#4A9BE0;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);margin:0;
+  font:400 15px/1.65 "Public Sans",system-ui,-apple-system,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:.86em;color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding:44px 26px 80px}
+h1{font-size:27px;font-weight:600;letter-spacing:-.02em;margin:0 0 10px;text-wrap:balance}
+.lede{color:var(--muted);max-width:64ch;margin:0 0 26px;font-weight:300}
+h2{font-size:17px;font-weight:600;margin:38px 0 12px;letter-spacing:-.01em}
+p.note{color:var(--muted);font-size:13.5px;max-width:70ch;margin:0 0 10px;font-weight:300}
+
+.bar{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;
+  padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:8px;margin-bottom:20px}
+fieldset{border:0;padding:0;margin:0}
+legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.row{display:flex;gap:5px;flex-wrap:wrap}
+.pick{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:5px;cursor:pointer;
+  background:#171A22;color:var(--muted);border:1px solid var(--line)}
+.pick[aria-pressed="true"]{background:#1E2431;color:var(--text);border-color:#39435A}
+.stat{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
+.stat b{color:var(--gold);font-weight:500}
+
+/* ---- the grid ---------------------------------------------------------- */
+#grid{display:grid;gap:4px;grid-template-columns:repeat(var(--cols,6),1fr)}
+#matrix{display:grid;gap:14px 8px;grid-template-columns:repeat(6,1fr);margin-top:6px}
+#matrix figure{margin:0}
+#matrix figcaption{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--muted);
+  margin-top:5px;text-align:center;line-height:1.35}
+#matrix figcaption b{display:block;color:var(--text);font-weight:500}
+.tile{position:relative;aspect-ratio:130/150;isolation:isolate}
+.tile img,.tile i,.tile b,.tile .anim{position:absolute;display:block}
+.tile img{object-fit:contain}
+.tile [hidden]{display:none!important}
+
+/* glyphs come from the game's atlas as background slices: no canvas, no script at paint */
+.tile i.g{background-repeat:no-repeat;background-image:var(--atlas)}
+.tile.max i.g{background-image:var(--atlas-max)}
+.tile b.txt{transform:skewX(-10deg);transform-origin:0 100%}
+
+/* A baked strip, stepped by CSS: one composited layer, no redraw, no player.
+   The strip is an inner band n times as wide as its window, slid one window at a time.
+   A percentage background-position would NOT do — it aligns proportionally rather than
+   offsetting, so the frames would land astride one another. */
+/* An animated layer costs even when it is off screen: it keeps ticking, and the blend
+   makes each one read its backdrop. So a tile only carries its animation while it is near
+   the viewport — an observer adds `live`, and the rest of the grid costs nothing. */
+.tile .anim{overflow:hidden;display:none}
+.tile.live .anim{display:block}
+.tile .anim>u{display:block;width:calc(var(--n)*100%);height:100%;
+  background-repeat:no-repeat;background-size:100% 100%;
+  /* the strips carry real alpha, so nothing breaks if a browser ignores this; where it
+     works, the glow adds to what is behind instead of replacing it, as the game does */
+  mix-blend-mode:plus-lighter;
+  animation:sprite calc(var(--n)/30*1s) steps(var(--n)) infinite}
+@keyframes sprite{to{transform:translateX(-100%)}}
+body.still .tile .anim>u{animation:none}
+
+.foot{color:var(--muted);font-size:12.5px;margin-top:34px;padding-top:16px;
+  border-top:1px solid var(--line);font-weight:300}
+table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+td.mono{color:var(--text)}
+@media (max-width:700px){.wrap{padding:26px 14px 60px}}
+</style>

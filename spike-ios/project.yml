@@ -1,0 +1,44 @@
+name: DokkanScanSpike
+options:
+  bundleIdPrefix: io.keyban.dokkanscan
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+settings:
+  base:
+    DEVELOPMENT_TEAM: T4F94R5K25
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+    TARGETED_DEVICE_FAMILY: "1"
+    MARKETING_VERSION: "0.1"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  DokkanScanSpike:
+    type: application
+    platform: iOS
+    sources: [App]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.keyban.dokkanscan
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_CFBundleDisplayName: DokkanScan
+        GENERATE_INFOPLIST_FILE: YES
+    dependencies:
+      - target: BroadcastExt
+        embed: true
+  BroadcastExt:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Broadcast
+      # The pack ships inside the extension so it can be memory-mapped straight from the
+      # bundle: a broadcast extension is capped at 50 MB, and mapping means only the pages
+      # actually read count against it.
+      - path: refpack.bin
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.keyban.dokkanscan.broadcast
+        GENERATE_INFOPLIST_FILE: NO
+        INFOPLIST_FILE: Broadcast/Info.plist
