@@ -37,7 +37,7 @@ LBL_H = env('LBL_H', 34)
 CW = env('CW', 150)                        # boîte de canevas d'un bouton (unités)
 CH = env('CH', 150)
 BTN_SCALE = env('BTN_SCALE', 1.0)         # échelle des hexagones (1 = natif)
-BG_TOP = env('BG_TOP', 72)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
+BG_TOP = env('BG_TOP', 76)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
                                            # mesuré dans le jeu : le vert commence à 115u au-dessus
                                            # du bas, soit 50u sous le haut de la bande)
 
