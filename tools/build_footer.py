@@ -25,19 +25,23 @@ def env(name, default): return float(os.environ.get(name, default))
 W = 852.0                                  # largeur du footer (= com_foo_base), en px de page
 FH = env('FH', 144)                        # hauteur de la bande visible, en unités de page
 
-# 5 colonnes régulières, mesurées sur le rendu du jeu (centres en fraction de largeur)
-COLS = [0.092, 0.296, 0.500, 0.704, 0.908]
+# 5 colonnes régulières centrées ; COL_GAP = écart entre deux boutons (fraction de largeur)
+COL_GAP = env('COL_GAP', 0.203)
+COLS = [0.5 + (i - 2) * COL_GAP for i in range(5)]
 
 BTN_CY = env('BTN_CY', 65)                 # centre vertical des boutons (unités depuis le haut)
-LBL_CY = env('LBL_CY', 102)                # centre vertical des libellés
+LBL_CY = env('LBL_CY', 99)                # centre vertical des libellés
 FONT_SZ = env('FONT_SZ', 22)               # taille de police (unités)
 LBL_SX = env('LBL_SX', 1.15)               # étirement horizontal du texte (le jeu étire le footer)
+LBL_LS = env('LBL_LS', 1.0)                 # écartement des lettres (unités)
 LBL_W = env('LBL_W', 165)                  # largeur de boîte d'un libellé (unités)
 LBL_H = env('LBL_H', 34)
 
 CW = env('CW', 150)                        # boîte de canevas d'un bouton (unités)
 CH = env('CH', 150)
 BTN_SCALE = env('BTN_SCALE', 1.0)         # échelle des hexagones (1 = natif)
+BTN_SX = env('BTN_SX', 1.18)               # étirement horizontal des hexagones (comme le footer du jeu)
+BG_OP = env('BG_OP', 1.0)                 # opacité du fond : le jeu fond com_foo_base avec le ciel
 BG_TOP = env('BG_TOP', 76)                 # bord HAUT du fond com_foo_base (unités depuis le haut ;
                                            # mesuré dans le jeu : le vert commence à 115u au-dessus
                                            # du bas, soit 50u sous le haut de la bande)
@@ -55,7 +59,7 @@ def main():
     # fond dessiné à l'échelle native (852 de large = pleine largeur), ancré par son bord haut ;
     # il est plus haut que la bande visible, le surplus déborde sous l'écran comme dans le jeu
     els = [f'<img id="bg" src="footer/com_foo_base.png" alt="" '
-           f'style="left:0;top:{py(BG_TOP):.4f}%;'
+           f'style="left:0;top:{py(BG_TOP):.4f}%;opacity:{BG_OP:.2f};'
            f'width:100%;height:{py(bgn[1]):.4f}%">']
 
     btns = []
@@ -88,6 +92,7 @@ def main():
   .footer>*{{position:absolute}}
   .lbl{{display:flex;align-items:center;justify-content:center;color:#fff;white-space:nowrap;
     font-family:DokkanUI,"Arial Narrow",sans-serif;font-size:calc(var(--u)*{FONT_SZ:.0f});line-height:1;
+    letter-spacing:calc(var(--u)*{LBL_LS:.2f});
     transform:scaleX({LBL_SX:.3f}) skewX(-10deg);   /* étirement horizontal du jeu + italique ~10° */
     z-index:50;   /* au-dessus des canevas de boutons, remis en dernier dans le DOM */
     text-shadow:{outline},{shadow}}}
@@ -99,14 +104,14 @@ def main():
 <script>
 LWF.useCanvasRenderer();
 const BTN={json.dumps(btns)};
-const R=2, K={BTN_SCALE:.3f}, CWpx={CW:.0f}*R, CHpx={CH:.0f}*R, insts=[], f=document.getElementById('f');
+const R=2, K={BTN_SCALE:.3f}, SX={BTN_SX:.3f}, CWpx={CW:.0f}*R, CHpx={CH:.0f}*R, insts=[], f=document.getElementById('f');
 for(const b of BTN){{
   const cv=document.createElement('canvas'); cv.width=CWpx; cv.height=CHpx;
   cv.style.cssText='position:absolute;left:'+b.left+'%;top:'+b.top+'%;width:'+b.wpc+'%;height:'+b.hpc+'%';
   f.appendChild(cv);
   LWF.ResourceCache.get().loadLWF({{lwf:'globalnavi_btn.lwf',prefix:'footer/',worker:false,stage:cv,
     onload:lwf=>{{ if(!lwf)return; lwf.rendererFactory.clearColor=null;
-      lwf.rootMovie.moveTo(CWpx/2,CHpx/2); lwf.rootMovie.scaleTo(R*K,R*K);  /* échelle native */
+      lwf.rootMovie.moveTo(CWpx/2,CHpx/2); lwf.rootMovie.scaleTo(R*K*SX,R*K);  /* échelle native */
       lwf.rootMovie.attachMovie(b.ef,'m'); lwf.exec(0); lwf.render(); insts.push(lwf); }}}});
 }}
 // les canevas sont ajoutés après les libellés : on remet les libellés en dernier pour qu'ils
