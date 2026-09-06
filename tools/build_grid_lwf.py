@@ -59,8 +59,13 @@ for t in range(5):
 # base gives one language of NAMES (make_cards) and here we bake that language's badges, so
 # a switch flips text and image together. `langs.json` drives it: today just ['en'], and
 # dropping a French base makes it ['en','fr'] with no change here — the extra loop runs.
+# One base is one language, and the whole page speaks it — chrome, card names, badges. Today
+# that is English alone (`langs.json` == ['en']); drop a French base and it becomes
+# ['en','fr'] and the EN/FR switch appears. The first language is the default and the
+# fallback for anything a later language happens to miss.
 LANGS = json.load(open(f'{GRD}/langs.json', encoding='utf-8'))
 img['langs'] = LANGS
+img['nameFallback'] = LANGS[0]
 img['loc'] = {}
 for lang in LANGS:
     # every language reuses the same basenames (cha_type_icon_11.png…), so the served copies

@@ -8,25 +8,25 @@
   <!-- Apparaît seulement quand une 2e langue de données existe (langs.json). Hors du panneau
        de filtres pour rester visible même replié : la langue n'est pas un filtre. -->
   <div class="langbar" id="langbar" hidden>
-    <span class="lbl">Langue</span><div class="row" id="cLang"></div>
+    <span class="lbl" data-i18n="language">Language</span><div class="row" id="cLang"></div>
   </div>
 
-  <!-- Six rangées de boutons occupaient tout l'écran d'un téléphone avant la première
-       carte. Repliées, elles tiennent sur une ligne — qui dit ce qui est actif, sans quoi
-       un panneau fermé masque une grille silencieusement restreinte. -->
+  <!-- Six rows of buttons filled a phone before the first card. Folded, they hold to one
+       line that says what is active — a closed panel must not hide a silently cut grid.
+       Every visible string carries a data-i18n key so one table can retranslate the page. -->
   <details class="filtres">
-    <summary><span class="titre">Filtres</span><span class="resume" id="fResume"></span>
-      <button type="button" class="raz" id="fRaz">effacer les filtres</button></summary>
+    <summary><span class="titre" data-i18n="filters">Filters</span><span class="resume" id="fResume"></span>
+      <button type="button" class="raz" id="fRaz" data-i18n="clearFilters">clear filters</button></summary>
     <div class="bar">
-      <fieldset><legend>Colonnes · le jeu en met 5</legend><div class="row" id="cCols"></div></fieldset>
-      <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
-      <fieldset><legend>Type</legend><div class="row" id="cType"></div></fieldset>
-      <fieldset><legend>Éveil maximum</legend><div class="row" id="cEv"></div></fieldset>
-      <fieldset><legend>Catégorie</legend>
-        <select id="cCat" class="pick sel"><option value="-1">toutes</option></select></fieldset>
-      <fieldset><legend>Collection</legend><div class="row" id="cOwn"></div></fieldset>
-      <fieldset><legend>Chercher</legend>
-        <input id="cName" type="search" placeholder="nom de la carte" autocomplete="off"></fieldset>
+      <fieldset><legend data-i18n="columns">Columns · the game shows 5</legend><div class="row" id="cCols"></div></fieldset>
+      <fieldset><legend data-i18n="rarity">Rarity</legend><div class="row" id="cRare"></div></fieldset>
+      <fieldset><legend data-i18n="type">Type</legend><div class="row" id="cType"></div></fieldset>
+      <fieldset><legend data-i18n="maxAwk">Max awakening</legend><div class="row" id="cEv"></div></fieldset>
+      <fieldset><legend data-i18n="category">Category</legend>
+        <select id="cCat" class="pick sel"><option value="-1"></option></select></fieldset>
+      <fieldset><legend data-i18n="collection">Collection</legend><div class="row" id="cOwn"></div></fieldset>
+      <fieldset><legend data-i18n="search">Search</legend>
+        <input id="cName" type="search" data-i18n-ph="cardNamePH" placeholder="card name" autocomplete="off"></fieldset>
       <div class="stat" id="stat"></div>
     </div>
   </details>

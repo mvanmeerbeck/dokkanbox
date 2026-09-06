@@ -167,25 +167,25 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
   <!-- Apparaît seulement quand une 2e langue de données existe (langs.json). Hors du panneau
        de filtres pour rester visible même replié : la langue n'est pas un filtre. -->
   <div class="langbar" id="langbar" hidden>
-    <span class="lbl">Langue</span><div class="row" id="cLang"></div>
+    <span class="lbl" data-i18n="language">Language</span><div class="row" id="cLang"></div>
   </div>
 
-  <!-- Six rangées de boutons occupaient tout l'écran d'un téléphone avant la première
-       carte. Repliées, elles tiennent sur une ligne — qui dit ce qui est actif, sans quoi
-       un panneau fermé masque une grille silencieusement restreinte. -->
+  <!-- Six rows of buttons filled a phone before the first card. Folded, they hold to one
+       line that says what is active — a closed panel must not hide a silently cut grid.
+       Every visible string carries a data-i18n key so one table can retranslate the page. -->
   <details class="filtres">
-    <summary><span class="titre">Filtres</span><span class="resume" id="fResume"></span>
-      <button type="button" class="raz" id="fRaz">effacer les filtres</button></summary>
+    <summary><span class="titre" data-i18n="filters">Filters</span><span class="resume" id="fResume"></span>
+      <button type="button" class="raz" id="fRaz" data-i18n="clearFilters">clear filters</button></summary>
     <div class="bar">
-      <fieldset><legend>Colonnes · le jeu en met 5</legend><div class="row" id="cCols"></div></fieldset>
-      <fieldset><legend>Rareté</legend><div class="row" id="cRare"></div></fieldset>
-      <fieldset><legend>Type</legend><div class="row" id="cType"></div></fieldset>
-      <fieldset><legend>Éveil maximum</legend><div class="row" id="cEv"></div></fieldset>
-      <fieldset><legend>Catégorie</legend>
-        <select id="cCat" class="pick sel"><option value="-1">toutes</option></select></fieldset>
-      <fieldset><legend>Collection</legend><div class="row" id="cOwn"></div></fieldset>
-      <fieldset><legend>Chercher</legend>
-        <input id="cName" type="search" placeholder="nom de la carte" autocomplete="off"></fieldset>
+      <fieldset><legend data-i18n="columns">Columns · the game shows 5</legend><div class="row" id="cCols"></div></fieldset>
+      <fieldset><legend data-i18n="rarity">Rarity</legend><div class="row" id="cRare"></div></fieldset>
+      <fieldset><legend data-i18n="type">Type</legend><div class="row" id="cType"></div></fieldset>
+      <fieldset><legend data-i18n="maxAwk">Max awakening</legend><div class="row" id="cEv"></div></fieldset>
+      <fieldset><legend data-i18n="category">Category</legend>
+        <select id="cCat" class="pick sel"><option value="-1"></option></select></fieldset>
+      <fieldset><legend data-i18n="collection">Collection</legend><div class="row" id="cOwn"></div></fieldset>
+      <fieldset><legend data-i18n="search">Search</legend>
+        <input id="cName" type="search" data-i18n-ph="cardNamePH" placeholder="card name" autocomplete="off"></fieldset>
       <div class="stat" id="stat"></div>
     </div>
   </details>
@@ -201,7 +201,7 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
   </div>
 
 </div>
-<script id="gImg" type="application/json">{"bg": {"0_0": "assets/img/cha_base_00_00.png", "0_1": "assets/img/cha_base_00_01.png", "0_2": "assets/img/cha_base_00_02.png", "0_3": "assets/img/cha_base_00_03.png", "1_0": "assets/img/cha_base_01_00.png", "1_1": "assets/img/cha_base_01_01.png", "1_2": "assets/img/cha_base_01_02.png", "1_3": "assets/img/cha_base_01_03.png", "2_0": "assets/img/cha_base_02_00.png", "2_1": "assets/img/cha_base_02_01.png", "2_2": "assets/img/cha_base_02_02.png", "2_3": "assets/img/cha_base_02_03.png", "3_0": "assets/img/cha_base_03_00.png", "3_1": "assets/img/cha_base_03_01.png", "3_2": "assets/img/cha_base_03_02.png", "3_3": "assets/img/cha_base_03_03.png", "4_0": "assets/img/cha_base_04_00.png", "4_1": "assets/img/cha_base_04_01.png", "4_2": "assets/img/cha_base_04_02.png", "4_3": "assets/img/cha_base_04_03.png"}, "band": {"0": "assets/img/cha_base_bottom_00.png", "1": "assets/img/cha_base_bottom_01.png", "2": "assets/img/cha_base_bottom_02.png", "3": "assets/img/cha_base_bottom_03.png", "4": "assets/img/cha_base_bottom_04.png"}, "rare": {"n": "assets/img/cha_rare_sm_n.png", "r": "assets/img/cha_rare_sm_r.png", "sr": "assets/img/cha_rare_sm_sr.png", "ssr": "assets/img/cha_rare_sm_ssr.png", "ur": "assets/img/cha_rare_sm_ur.png", "lr": "assets/img/cha_rare_sm_lr.png"}, "star": {"1": "assets/img/cha_evo_star1.png", "2": "assets/img/cha_evo_star2.png", "3": "assets/img/cha_evo_star3.png", "4": "assets/img/cha_evo_star4.png", "5": "assets/img/cha_evo_star5.png"}, "langs": ["en"], "loc": {"en": {"type": {"0": "assets/img/en_cha_type_icon_00.png", "1": "assets/img/en_cha_type_icon_01.png", "2": "assets/img/en_cha_type_icon_02.png", "3": "assets/img/en_cha_type_icon_03.png", "4": "assets/img/en_cha_type_icon_04.png", "10": "assets/img/en_cha_type_icon_10.png", "11": "assets/img/en_cha_type_icon_11.png", "12": "assets/img/en_cha_type_icon_12.png", "13": "assets/img/en_cha_type_icon_13.png", "14": "assets/img/en_cha_type_icon_14.png", "20": "assets/img/en_cha_type_icon_20.png", "21": "assets/img/en_cha_type_icon_21.png", "22": "assets/img/en_cha_type_icon_22.png", "23": "assets/img/en_cha_type_icon_23.png", "24": "assets/img/en_cha_type_icon_24.png"}, "label": "assets/img/en_com_label_lv.png", "natType": [130, 130], "natLabel": [120, 40]}}, "lock": "assets/img/cha_icon_lock.png", "atlas": "assets/img/number.png", "sky": "assets/img/com_bg.png", "atlasMax": "assets/img/number_max.png", "native": {"bg": [200, 200], "band": [100, 30], "rare": [60, 60], "lock": [40, 40], "star": {"1": [80, 36], "2": [80, 36], "3": [80, 36], "4": [80, 36], "5": [80, 60]}}}</script>
+<script id="gImg" type="application/json">{"bg": {"0_0": "assets/img/cha_base_00_00.png", "0_1": "assets/img/cha_base_00_01.png", "0_2": "assets/img/cha_base_00_02.png", "0_3": "assets/img/cha_base_00_03.png", "1_0": "assets/img/cha_base_01_00.png", "1_1": "assets/img/cha_base_01_01.png", "1_2": "assets/img/cha_base_01_02.png", "1_3": "assets/img/cha_base_01_03.png", "2_0": "assets/img/cha_base_02_00.png", "2_1": "assets/img/cha_base_02_01.png", "2_2": "assets/img/cha_base_02_02.png", "2_3": "assets/img/cha_base_02_03.png", "3_0": "assets/img/cha_base_03_00.png", "3_1": "assets/img/cha_base_03_01.png", "3_2": "assets/img/cha_base_03_02.png", "3_3": "assets/img/cha_base_03_03.png", "4_0": "assets/img/cha_base_04_00.png", "4_1": "assets/img/cha_base_04_01.png", "4_2": "assets/img/cha_base_04_02.png", "4_3": "assets/img/cha_base_04_03.png"}, "band": {"0": "assets/img/cha_base_bottom_00.png", "1": "assets/img/cha_base_bottom_01.png", "2": "assets/img/cha_base_bottom_02.png", "3": "assets/img/cha_base_bottom_03.png", "4": "assets/img/cha_base_bottom_04.png"}, "rare": {"n": "assets/img/cha_rare_sm_n.png", "r": "assets/img/cha_rare_sm_r.png", "sr": "assets/img/cha_rare_sm_sr.png", "ssr": "assets/img/cha_rare_sm_ssr.png", "ur": "assets/img/cha_rare_sm_ur.png", "lr": "assets/img/cha_rare_sm_lr.png"}, "star": {"1": "assets/img/cha_evo_star1.png", "2": "assets/img/cha_evo_star2.png", "3": "assets/img/cha_evo_star3.png", "4": "assets/img/cha_evo_star4.png", "5": "assets/img/cha_evo_star5.png"}, "langs": ["en"], "nameFallback": "en", "loc": {"en": {"type": {"0": "assets/img/en_cha_type_icon_00.png", "1": "assets/img/en_cha_type_icon_01.png", "2": "assets/img/en_cha_type_icon_02.png", "3": "assets/img/en_cha_type_icon_03.png", "4": "assets/img/en_cha_type_icon_04.png", "10": "assets/img/en_cha_type_icon_10.png", "11": "assets/img/en_cha_type_icon_11.png", "12": "assets/img/en_cha_type_icon_12.png", "13": "assets/img/en_cha_type_icon_13.png", "14": "assets/img/en_cha_type_icon_14.png", "20": "assets/img/en_cha_type_icon_20.png", "21": "assets/img/en_cha_type_icon_21.png", "22": "assets/img/en_cha_type_icon_22.png", "23": "assets/img/en_cha_type_icon_23.png", "24": "assets/img/en_cha_type_icon_24.png"}, "label": "assets/img/en_com_label_lv.png", "natType": [130, 130], "natLabel": [120, 40]}}, "lock": "assets/img/cha_icon_lock.png", "atlas": "assets/img/number.png", "sky": "assets/img/com_bg.png", "atlasMax": "assets/img/number_max.png", "native": {"bg": [200, 200], "band": [100, 30], "rare": [60, 60], "lock": [40, 40], "star": {"1": [80, 36], "2": [80, 36], "3": [80, 36], "4": [80, 36], "5": [80, 60]}}}</script>
 <script id="gFont" type="application/json">{"lineHeight": 67, "atlasW": 512, "atlasH": 512, "glyphs": {"48": [192, 195, 28, 32, 1, 33, 27], "49": [44, 327, 16, 30, 5, 35, 27], "50": [262, 229, 27, 31, 2, 34, 27], "51": [222, 195, 28, 32, 1, 33, 27], "52": [171, 229, 29, 31, 1, 34, 27], "53": [291, 229, 27, 31, 2, 34, 27], "54": [252, 195, 28, 32, 2, 34, 27], "55": [247, 295, 27, 30, 2, 35, 27], "56": [130, 195, 29, 32, 1, 34, 27], "57": [282, 195, 28, 32, 1, 34, 27], "37": [2, 229, 33, 31, 1, 34, 32], "32": [360, 386, 0, 0, 0, 64, 11]}}</script>
 <script id="gLay" type="application/json">{"w": 130, "h": 150, "italic_deg": 10, "anchor": "0x2098be8", "nodes": {"img_thumb_empty": {"x": 15.0, "y": 30.0, "w": 100.0, "h": 100.0, "z": 1, "scale": 1.0, "type": "image", "file": "character/cha_base_empty"}, "img_bg": {"x": 15.0, "y": 30.0, "w": 100.0, "h": 100.0, "z": 2, "scale": 0.5, "type": "image", "file": "character/character_thumb_bg/cha_base_00_05"}, "fla_super_optimal_eff": {"x": 65.0, "y": 80.0, "w": 20.0, "h": 20.0, "z": 3, "scale": 1.0, "type": "flash", "file": "outgame/effect/super_optimal_eff/super_optimal_eff.lwf", "anime": "ef_001"}, "fla_bg_effect": {"x": 65.0, "y": 80.0, "w": 20.0, "h": 20.0, "z": 4, "scale": 1.0, "type": "flash", "file": "outgame/effect/icon_rare_20000/icon_rare_20000.lwf", "anime": "ef_001"}, "image_thumb": {"x": 3.0, "y": 22.0, "w": 125.0, "h": 125.0, "z": 5, "scale": 0.5, "type": "image", "file": "master/character/thumb/card_9999990_thumb"}, "image_chara_bottom_base": {"x": 15.0, "y": 0.0, "w": 100.0, "h": 30.0, "z": 6, "scale": 1.0, "type": "image", "file": "ui/character/cha_base_bottom_00"}, "image_rare_ssr": {"x": 3.0, "y": 30.0, "w": 54.0, "h": 30.0, "z": 7, "scale": 1.0, "type": "image", "file": "character/cha_rare_sm_ssr"}, "font_num03": {"x": 28.0, "y": 2.0, "w": 45.0, "h": 24.0, "z": 8, "scale": 0.5, "type": "bmlabel", "font": "number.fnt", "kerning": -2, "italic": true}, "font_num02": {"x": 29.0, "y": 2.0, "w": 45.0, "h": 24.0, "z": 9, "scale": 0.58, "type": "bmlabel", "font": "number.fnt", "kerning": -2, "italic": true}, "font_percent": {"x": 74.0, "y": 2.0, "w": 19.0, "h": 22.0, "z": 10, "scale": 0.4, "type": "bmlabel", "font": "number.fnt", "kerning": -2, "italic": true}, "image_icon_up": {"x": 89.0, "y": 5.0, "w": 26.0, "h": 18.0, "z": 11, "scale": 1.0, "type": "image", "file": "common/com_arrow_up01"}, "font_num": {"x": 47.0, "y": -1.0, "w": 66.0, "h": 30.0, "z": 12, "scale": 0.58, "type": "bmlabel", "font": "number.fnt", "kerning": -2, "italic": true}, "font_text02": {"x": 17.0, "y": 0.0, "w": 96.0, "h": 30.0, "z": 13, "scale": 0.58, "type": "bmlabel", "font": "number.fnt", "kerning": -2, "italic": true}, "font_text": {"x": 17.0, "y": 0.0, "w": 96.0, "h": 30.0, "z": 14, "scale": 0.58, "type": "bmlabel", "font": "number.fnt", "kerning": -2, "italic": true}, "image_cha_icon_lock": {"x": 4.0, "y": 1.0, "w": 28.0, "h": 28.0, "z": 15, "scale": 0.7, "type": "image", "file": "character/cha_icon_lock.png"}, "image_label_lv": {"x": -35.0, "y": -2.0, "w": 96.0, "h": 32.0, "z": 16, "scale": 0.9, "type": "image", "file": "common/label/com_label_lv"}, "image_label_number": {"x": -21.0, "y": -2.0, "w": 96.0, "h": 32.0, "z": 17, "scale": 0.8, "type": "image", "file": "common/label/com_label_number"}, "image_label_efchange": {"x": 58.0, "y": -4.0, "w": 76.0, "h": 76.0, "z": 18, "scale": 1.0, "type": "image", "file": "ui/character/cha_label_efchange_0"}, "image_star_evo": {"x": 50.0, "y": 30.0, "w": 80.0, "h": 36.0, "z": 19, "scale": 1.0, "type": "image", "file": "character/cha_evo_star4"}, "image_star_evo_dokkan": {"x": 35.0, "y": 28.0, "w": 80.0, "h": 36.0, "z": 20, "scale": 0.7, "type": "image", "file": "character/cha_evo_star4"}, "image_star_evo_big": {"x": 54.0, "y": 26.0, "w": 80.0, "h": 50.0, "z": 21, "scale": 0.85, "type": "image", "file": "character/cha_evo_star5"}, "img_reward_icon": {"x": 10.0, "y": 100.0, "w": 48.0, "h": 48.0, "z": 22, "scale": 1.0, "type": "image", "file": "ui/character/cha_reward_icon_0"}, "img_cost_over": {"x": 21.0, "y": 46.0, "w": 90.0, "h": 60.0, "z": 23, "scale": 1.0, "type": "image", "file": "character/cha_icon_cost_over.png"}, "btn_plus": {"x": 77.0, "y": 12.0, "w": 50.0, "h": 50.0, "z": 24, "scale": 0.38, "type": "image", "file": "common/btn/com_btn_11_plus_green"}, "fla_button": {"x": 102.0, "y": 37.0, "w": 1.0, "h": 1.0, "z": 25, "scale": 0.38, "type": "flash", "file": "outgame/effect/btn_00000/btn_00000.lwf"}, "img_in_use": {"x": 5.0, "y": 60.0, "w": 120.0, "h": 40.0, "z": 26, "scale": 1.0, "type": "image", "file": "ui/common/label/com_label_in_use"}, "image_leader": {"x": -6.0, "y": 98.0, "w": 110.0, "h": 50.0, "z": 27, "scale": 1.0, "type": "image", "file": "character/cha_icon_leader"}, "image_icon_type": {"x": 86.0, "y": 99.0, "w": 48.0, "h": 48.0, "z": 28, "scale": 0.37, "type": "image", "file": "character/cha_type_icon_02"}, "img_cha_base_clear": {"x": 16.0, "y": 32.0, "w": 100.0, "h": 100.0, "z": 29, "scale": 1.0, "type": "image", "file": "character/cha_base_clear_01"}, "img_level_max": {"x": 62.0, "y": 4.0, "w": 50.0, "h": 20.0, "z": 30, "scale": 1.0, "type": "image", "file": "ui/common/com_lv_max.png"}, "img_com_label_sp_lv": {"x": 15.0, "y": 84.0, "w": 98.0, "h": 28.0, "z": 31, "scale": 1.0, "type": "image", "file": "common/label/com_label_sp_atk_lv_05.png"}, "font_sp_num_100": {"x": 22.0, "y": 56.0, "w": 68.0, "h": 31.0, "z": 32, "scale": 1.0, "type": "label", "font": "OT-PShinGoPr6N-Heavy.otf"}, "font_sp_100_2": {"x": 90.0, "y": 58.0, "w": 20.0, "h": 21.0, "z": 33, "scale": 1.0, "type": "label", "font": "OT-PShinGoPr6N-Heavy.otf"}, "image_new": {"x": 2.0, "y": 113.0, "w": 65.0, "h": 34.0, "z": 34, "scale": 1.0, "type": "image", "file": "character/cha_icon_new"}, "img_select_number": {"x": 2.0, "y": 114.0, "w": 32.0, "h": 32.0, "z": 35, "scale": 1.0, "type": "image", "file": "ui/character/cha_choice_icon_01_gray"}}}</script>
 <script id="gAnim" type="application/json">{"icon_rare_20000": {"dir": "assets/anim/icon_rare_20000/", "img": {"Images_ef_009_drop_rate_mark_text.png": "assets/anim/icon_rare_20000/Images_ef_009_drop_rate_mark_text.webp", "Images_ef_016_boost_mark_text.png": "assets/anim/icon_rare_20000/Images_ef_016_boost_mark_text.webp", "Images_ef_039_text.png": "assets/anim/icon_rare_20000/Images_ef_039_text.webp", "icon_rare_20000-1.png": "assets/anim/icon_rare_20000/icon_rare_20000-1.webp", "icon_rare_20000-2.png": "assets/anim/icon_rare_20000/icon_rare_20000-2.webp", "mandatory_chara.png": "assets/anim/icon_rare_20000/mandatory_chara.webp"}}, "super_optimal_eff": {"dir": "assets/anim/super_optimal_eff/", "img": {"super_optimal_eff-1.png": "assets/anim/super_optimal_eff/super_optimal_eff-1.webp", "super_optimal_eff-2.png": "assets/anim/super_optimal_eff/super_optimal_eff-2.webp"}}, "anim_120000": {"dir": "assets/anim/anim_120000/", "img": {"anim_120000-1.png": "assets/anim/anim_120000/anim_120000-1.webp", "anim_120000-2.png": "assets/anim/anim_120000/anim_120000-2.webp", "anim_120000-3.png": "assets/anim/anim_120000/anim_120000-3.webp", "anim_120000-4.png": "assets/anim/anim_120000/anim_120000-4.webp"}}}</script>
@@ -15824,21 +15824,60 @@ Util.compressFile = function(inStream, outStream, props, progress) {
   const pc = (v, t) => (v / t * 100) + "%";
   const RARE = ["n", "r", "sr", "ssr", "ur", "lr"];
 
-  /* ---- language: everything that comes FROM THE GAME (card names, category names, the
-     five type codes and their badge image) follows this; the page's own chrome stays
-     French. One base is one language, so the switch only exists once a second base is
-     dropped in — LANGS then has two entries and the buttons appear. */
-  const LANGS = IMG.langs;
+  /* ---- language: the WHOLE page speaks one language — chrome, card names, category names,
+     type codes and their badge image. One base is one language, so the switch only exists
+     once a second base is dropped in: LANGS then has two entries and the buttons appear. */
+  const LANGS = IMG.langs;                       // ['en'] today, ['en','fr'] once FR names land
+  const NOMFB = IMG.nameFallback;                // the language names really exist in
   const CLE_LANG = "dokkan.langue";
-  let lang = LANGS[0];
+  let lang = LANGS[0];                            // English by default
   try { const s = localStorage.getItem(CLE_LANG); if (LANGS.includes(s)) lang = s; } catch (e) {}
   // the game's own type codes, per language — the badge shows them, so the text must match
   const TYPES = { en: ["AGL", "TEQ", "INT", "STR", "PHY"],
                   fr: ["AGI", "TEC", "INT", "PUI", "END"] };
-  const types = () => TYPES[lang] || TYPES[LANGS[0]];
-  const nomC = c => c.name[lang] || c.name[LANGS[0]];         // card name in the current lang
-  const nomCat = id => { const m = CATS[id]; return m ? (m[lang] || m[LANGS[0]]) : ""; };
+  const types = () => TYPES[lang] || TYPES[NOMFB];
+  // names come from the base: French when we have it, English until then — never blank
+  const nomC = c => c.name[lang] || c.name[NOMFB];
+  const nomCat = id => { const m = CATS[id]; return m ? (m[lang] || m[NOMFB]) : ""; };
   const LOCA = () => IMG.loc[lang] || IMG.loc[LANGS[0]];      // this lang's badges + label
+
+  /* Every word of chrome, per language. Today the page runs in English; the French is kept
+     ready so that adding a French base flips the whole page, not only the card names. `allF`
+     is the feminine "toutes" French needs and English does not. */
+  const I18N = {
+    en: { filters: "Filters", clearFilters: "clear filters",
+          columns: "Columns · the game shows 5", rarity: "Rarity", type: "Type",
+          maxAwk: "Max awakening", category: "Category", collection: "Collection",
+          search: "Search", cardNamePH: "card name", language: "Language",
+          all: "all", allF: "all", owned: "owned", missing: "missing", allCards: "all cards",
+          export: "export", import: "import", clearAll: "clear all",
+          cards: "cards", animated: "animated", onScreen: "on screen", builtIn: "built in",
+          awakening: "awakening", lv: "Lv", columnsWord: "columns",
+          ev: ["none", "Z", "Dokkan", "Extreme Z", "Super Extreme Z"],
+          confirmClear: n => "Clear the " + n + " cards in your box?\n" +
+            "This cannot be undone — export them first if you want to keep them." },
+    fr: { filters: "Filtres", clearFilters: "effacer les filtres",
+          columns: "Colonnes · le jeu en met 5", rarity: "Rareté", type: "Type",
+          maxAwk: "Éveil maximum", category: "Catégorie", collection: "Collection",
+          search: "Chercher", cardNamePH: "nom de la carte", language: "Langue",
+          all: "tous", allF: "toutes", owned: "possédées", missing: "manquantes",
+          allCards: "toutes les cartes", export: "exporter", import: "importer",
+          clearAll: "tout décocher", cards: "cartes", animated: "animées",
+          onScreen: "à l'écran", builtIn: "construites en", awakening: "éveil", lv: "Nv",
+          columnsWord: "colonnes",
+          ev: ["aucun", "Z", "Dokkan", "Z suprême", "Z suprême super"],
+          confirmClear: n => "Décocher les " + n + " cartes de votre box ?\n" +
+            "C'est sans retour : exportez-les d'abord si vous voulez pouvoir y revenir." }
+  };
+  const t = () => I18N[lang] || I18N[NOMFB];
+  /* the static chrome carries its key in data-i18n / data-i18n-ph; applied on load and on
+     every language switch, so one table drives markup and script alike */
+  function appliquerTextes() {
+    const T = t();
+    document.querySelectorAll("[data-i18n]").forEach(e => { e.textContent = T[e.dataset.i18n]; });
+    document.querySelectorAll("[data-i18n-ph]").forEach(e => {
+      e.setAttribute("placeholder", T[e.dataset.i18nPh]); });
+  }
   const back = document.getElementById("back"), front = document.getElementById("front");
   const cAur = document.getElementById("auras"), cPul = document.getElementById("pulses");
   /* Each card carries what it should show, so there is nothing to switch: the album is the
@@ -15933,7 +15972,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
       b.dataset.id = card.top; b.dataset.i = idx;
       /* the tooltip has to live on the plane that receives the pointer: #front is
          pointer-events:none, so a title there is never shown */
-      b.title = nomC(card) + " · " + RARE[card.rarity].toUpperCase() + " · Nv " + card.lv +
+      b.title = nomC(card) + " · " + RARE[card.rarity].toUpperCase() + " · " + t().lv + " " + card.lv +
                 " · " + card.top;
       sprite(b, "img_bg", IMG.bg[type + "_" + rare], NAT.bg);
       fb.appendChild(b);
@@ -15965,9 +16004,9 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     resize();
     const ms = Math.round(performance.now() - t0);
     document.getElementById("stat").innerHTML =
-      "<b>" + shown.length + "</b> cartes · <b>" + live.length +
-      "</b> animées · <b id='drawn'>0</b> à l'écran · construites en <b>" + ms +
-      " ms</b> · <b id='fps'>—</b>";
+      "<b>" + shown.length + "</b> " + t().cards + " · <b>" + live.length +
+      "</b> " + t().animated + " · <b id='drawn'>0</b> " + t().onScreen +
+      " · " + t().builtIn + " <b>" + ms + " ms</b> · <b id='fps'>—</b>";
   }
 
   /* ---- one instance per timeline, rendered once and copied everywhere ---- */
@@ -16277,30 +16316,37 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     });
   }
 
+  /* A label may be a string or a function: functions are re-read on every sync, so a
+     language switch relabels every button without rebuilding the group. The count of
+     buttons never changes with the language, so the DOM is built once. */
   function group(id, items, get, set) {
     const host = document.getElementById(id);
     const made = items.map(it => {
       const b = document.createElement("button");
-      b.type = "button"; b.className = "pick"; b.textContent = it.label;
+      b.type = "button"; b.className = "pick";
       b.addEventListener("click", () => { set(it.value); sync(); });
       host.appendChild(b);
-      return [b, it.value];
+      return [b, it.value, it.label];
     });
-    return () => made.forEach(([b, v]) => b.setAttribute("aria-pressed", String(get() === v)));
+    return () => made.forEach(([b, v, label]) => {
+      b.textContent = typeof label === "function" ? label() : label;
+      b.setAttribute("aria-pressed", String(get() === v));
+    });
   }
   const syncs = [
     group("cCols", [5, 10, 25].map(n => ({ label: String(n), value: n })), () => state.cols, v => state.cols = v),
-    group("cRare", [{ label: "toutes", value: -1 }].concat(RARE.map((r, i) => ({ label: r.toUpperCase(), value: i }))),
+    group("cRare", [{ label: () => t().allF, value: -1 }].concat(RARE.map((r, i) => ({ label: r.toUpperCase(), value: i }))),
           () => state.rare, v => state.rare = v),
-    group("cType", [{ label: "tous", value: -1 }].concat(
-            types().map((t, i) => ({ label: t, value: i }))),
+    group("cType", [{ label: () => t().all, value: -1 }].concat(
+            [0, 1, 2, 3, 4].map(i => ({ label: () => types()[i], value: i }))),
           () => state.type, v => state.type = v),
-    group("cEv", [{ label: "tous", value: -1 }, { label: "Z suprême super", value: 4 },
-                  { label: "Z suprême", value: 3 }, { label: "Dokkan", value: 2 },
-                  { label: "Z", value: 1 }, { label: "aucun", value: 0 }],
+    group("cEv", [{ label: () => t().all, value: -1 },
+                  { label: () => t().ev[4], value: 4 }, { label: () => t().ev[3], value: 3 },
+                  { label: () => t().ev[2], value: 2 }, { label: () => t().ev[1], value: 1 },
+                  { label: () => t().ev[0], value: 0 }],
           () => state.ev, v => state.ev = v),
-    group("cOwn", [{ label: "toutes", value: "tous" }, { label: "possédées", value: "oui" },
-                   { label: "manquantes", value: "non" }],
+    group("cOwn", [{ label: () => t().allF, value: "tous" }, { label: () => t().owned, value: "oui" },
+                   { label: () => t().missing, value: "non" }],
           () => state.own, v => state.own = v)
   ];
   {
@@ -16316,7 +16362,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
      by scanning, not by hunting an id order. Rebuilt on a language switch, selection kept. */
   function remplirCat() {
     const garde = catSel.value;
-    catSel.length = 1;                       /* keep the "toutes" option, drop the rest */
+    catSel.length = 1; catSel.options[0].textContent = t().allF;   /* keep "all", relabel it, drop the rest */
     Object.keys(CATS).map(id => [id, nomCat(id)])
       .sort((a, b) => a[1].localeCompare(b[1]))
       .forEach(([id, nom]) => {
@@ -16355,8 +16401,8 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     document.getElementById("score").innerHTML =
       `<span><b>${possede.size}</b> / ${CARDS.length}</span>` + parts +
       `<span class="part lien">` +
-      `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a>` +
-      ` · <a href="#" id="vider">tout décocher</a></span>`;
+      `<a href="#" id="exp">${t().export}</a> · <a href="#" id="imp">${t().import}</a>` +
+      ` · <a href="#" id="vider">${t().clearAll}</a></span>`;
     document.getElementById("exp").onclick = e => {
       e.preventDefault();
       const b = new Blob([JSON.stringify([...possede])], { type: "application/json" });
@@ -16367,8 +16413,8 @@ Util.compressFile = function(inStream, outStream, props, progress) {
       e.preventDefault();
       const i = document.createElement("input");
       i.type = "file"; i.accept = "application/json";
-      i.onchange = () => i.files[0].text().then(t => {
-        try { possede = new Set(JSON.parse(t)); sauver(); sync(); } catch (err) {}
+      i.onchange = () => i.files[0].text().then(txt => {   /* not `t`: that shadows the i18n helper */
+        try { possede = new Set(JSON.parse(txt)); sauver(); sync(); } catch (err) {}
       });
       i.click();
     };
@@ -16377,8 +16423,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     document.getElementById("vider").onclick = e => {
       e.preventDefault();
       if (!possede.size) return;
-      if (!confirm("Décocher les " + possede.size + " cartes de votre box ?\n"
-                 + "C'est sans retour : exportez-les d'abord si vous voulez pouvoir y revenir.")) return;
+      if (!confirm(t().confirmClear(possede.size))) return;
       possede.clear(); sauver(); sync();
     };
   }
@@ -16418,8 +16463,8 @@ Util.compressFile = function(inStream, outStream, props, progress) {
       const card = affichees[+cell.dataset.i];
       if (card) survolEl.innerHTML =
         "<b>" + nomC(card) + "</b> · " + RARE[card.rarity].toUpperCase() +
-        " · Nv " + card.lv + " · " + types()[card.element % 10] +
-        " · éveil " + ["aucun", "Z", "Dokkan", "Z suprême", "Z suprême super"][card.ev] +
+        " · " + t().lv + " " + card.lv + " · " + types()[card.element % 10] +
+        " · " + t().awakening + " " + t().ev[card.ev] +
         " · <span style='opacity:.6'>" + card.top + "</span>";
     }
     if (peint === null || e.pointerType !== "mouse" || !e.buttons) return;
@@ -16434,15 +16479,14 @@ Util.compressFile = function(inStream, outStream, props, progress) {
   const razEl = document.getElementById("fRaz");
   function resume() {
     const p = [];
-    if (state.cols !== 5) p.push(state.cols + " colonnes");
+    if (state.cols !== 5) p.push(state.cols + " " + t().columnsWord);
     if (state.rare >= 0) p.push(RARE[state.rare].toUpperCase());
     if (state.type >= 0) p.push(types()[state.type]);
-    if (state.ev >= 0) p.push(["sans éveil", "Z", "Dokkan", "Z suprême",
-                               "Z suprême super"][state.ev]);
+    if (state.ev >= 0) p.push(t().ev[state.ev]);
     if (state.cat >= 0) p.push(nomCat(state.cat));
-    if (state.own !== "tous") p.push(state.own === "oui" ? "possédées" : "manquantes");
+    if (state.own !== "tous") p.push(state.own === "oui" ? t().owned : t().missing);
     if (state.nom) p.push("« " + state.nom + " »");
-    resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
+    resumeEl.textContent = p.length ? p.join(" · ") : t().allCards;
     resumeEl.classList.toggle("vide", !p.length);
   }
   razEl.addEventListener("click", e => {
@@ -16456,9 +16500,10 @@ Util.compressFile = function(inStream, outStream, props, progress) {
   });
 
   /* The language buttons exist only when a second base has been added — with one language
-     there is nothing to switch, so the bar stays hidden. Switching relabels the five type
-     codes (the badge image is redrawn by paint), rebuilds the category menu in the new
-     language, and repaints; the choice is remembered. */
+     there is nothing to switch, so the bar stays hidden. Switching retranslates the whole
+     page: static chrome (appliquerTextes), the filter buttons and the summary (sync relabels
+     them from their label functions), the category menu, and the tiles' names and badges
+     (paint, called by sync). The choice is remembered. */
   function majLangBtns() {
     document.querySelectorAll("#cLang .pick").forEach(b =>
       b.setAttribute("aria-pressed", String(b.dataset.l === lang)));
@@ -16467,9 +16512,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     if (!LANGS.includes(l) || l === lang) return;
     lang = l;
     try { localStorage.setItem(CLE_LANG, l); } catch (e) {}
-    const tb = document.querySelectorAll("#cType .pick");   // [0] is "tous", skip it
-    types().forEach((t, i) => { if (tb[i + 1]) tb[i + 1].textContent = t; });
-    remplirCat(); majLangBtns(); resume(); paint();
+    appliquerTextes(); remplirCat(); majLangBtns(); sync();
   }
   {
     const bar = document.getElementById("langbar");
@@ -16507,6 +16550,7 @@ Util.compressFile = function(inStream, outStream, props, progress) {
   }
   document.documentElement.style.setProperty("--atlas", "url(" + IMG.atlas + ")");
   document.documentElement.style.setProperty("--atlas-max", "url(" + IMG.atlasMax + ")");
+  appliquerTextes();               /* the static chrome, in the current language, before first paint */
   sync();
 })();
 </script>

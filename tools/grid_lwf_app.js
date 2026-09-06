@@ -11,21 +11,60 @@
   const pc = (v, t) => (v / t * 100) + "%";
   const RARE = ["n", "r", "sr", "ssr", "ur", "lr"];
 
-  /* ---- language: everything that comes FROM THE GAME (card names, category names, the
-     five type codes and their badge image) follows this; the page's own chrome stays
-     French. One base is one language, so the switch only exists once a second base is
-     dropped in — LANGS then has two entries and the buttons appear. */
-  const LANGS = IMG.langs;
+  /* ---- language: the WHOLE page speaks one language — chrome, card names, category names,
+     type codes and their badge image. One base is one language, so the switch only exists
+     once a second base is dropped in: LANGS then has two entries and the buttons appear. */
+  const LANGS = IMG.langs;                       // ['en'] today, ['en','fr'] once FR names land
+  const NOMFB = IMG.nameFallback;                // the language names really exist in
   const CLE_LANG = "dokkan.langue";
-  let lang = LANGS[0];
+  let lang = LANGS[0];                            // English by default
   try { const s = localStorage.getItem(CLE_LANG); if (LANGS.includes(s)) lang = s; } catch (e) {}
   // the game's own type codes, per language — the badge shows them, so the text must match
   const TYPES = { en: ["AGL", "TEQ", "INT", "STR", "PHY"],
                   fr: ["AGI", "TEC", "INT", "PUI", "END"] };
-  const types = () => TYPES[lang] || TYPES[LANGS[0]];
-  const nomC = c => c.name[lang] || c.name[LANGS[0]];         // card name in the current lang
-  const nomCat = id => { const m = CATS[id]; return m ? (m[lang] || m[LANGS[0]]) : ""; };
+  const types = () => TYPES[lang] || TYPES[NOMFB];
+  // names come from the base: French when we have it, English until then — never blank
+  const nomC = c => c.name[lang] || c.name[NOMFB];
+  const nomCat = id => { const m = CATS[id]; return m ? (m[lang] || m[NOMFB]) : ""; };
   const LOCA = () => IMG.loc[lang] || IMG.loc[LANGS[0]];      // this lang's badges + label
+
+  /* Every word of chrome, per language. Today the page runs in English; the French is kept
+     ready so that adding a French base flips the whole page, not only the card names. `allF`
+     is the feminine "toutes" French needs and English does not. */
+  const I18N = {
+    en: { filters: "Filters", clearFilters: "clear filters",
+          columns: "Columns · the game shows 5", rarity: "Rarity", type: "Type",
+          maxAwk: "Max awakening", category: "Category", collection: "Collection",
+          search: "Search", cardNamePH: "card name", language: "Language",
+          all: "all", allF: "all", owned: "owned", missing: "missing", allCards: "all cards",
+          export: "export", import: "import", clearAll: "clear all",
+          cards: "cards", animated: "animated", onScreen: "on screen", builtIn: "built in",
+          awakening: "awakening", lv: "Lv", columnsWord: "columns",
+          ev: ["none", "Z", "Dokkan", "Extreme Z", "Super Extreme Z"],
+          confirmClear: n => "Clear the " + n + " cards in your box?\n" +
+            "This cannot be undone — export them first if you want to keep them." },
+    fr: { filters: "Filtres", clearFilters: "effacer les filtres",
+          columns: "Colonnes · le jeu en met 5", rarity: "Rareté", type: "Type",
+          maxAwk: "Éveil maximum", category: "Catégorie", collection: "Collection",
+          search: "Chercher", cardNamePH: "nom de la carte", language: "Langue",
+          all: "tous", allF: "toutes", owned: "possédées", missing: "manquantes",
+          allCards: "toutes les cartes", export: "exporter", import: "importer",
+          clearAll: "tout décocher", cards: "cartes", animated: "animées",
+          onScreen: "à l'écran", builtIn: "construites en", awakening: "éveil", lv: "Nv",
+          columnsWord: "colonnes",
+          ev: ["aucun", "Z", "Dokkan", "Z suprême", "Z suprême super"],
+          confirmClear: n => "Décocher les " + n + " cartes de votre box ?\n" +
+            "C'est sans retour : exportez-les d'abord si vous voulez pouvoir y revenir." }
+  };
+  const t = () => I18N[lang] || I18N[NOMFB];
+  /* the static chrome carries its key in data-i18n / data-i18n-ph; applied on load and on
+     every language switch, so one table drives markup and script alike */
+  function appliquerTextes() {
+    const T = t();
+    document.querySelectorAll("[data-i18n]").forEach(e => { e.textContent = T[e.dataset.i18n]; });
+    document.querySelectorAll("[data-i18n-ph]").forEach(e => {
+      e.setAttribute("placeholder", T[e.dataset.i18nPh]); });
+  }
   const back = document.getElementById("back"), front = document.getElementById("front");
   const cAur = document.getElementById("auras"), cPul = document.getElementById("pulses");
   /* Each card carries what it should show, so there is nothing to switch: the album is the
@@ -120,7 +159,7 @@
       b.dataset.id = card.top; b.dataset.i = idx;
       /* the tooltip has to live on the plane that receives the pointer: #front is
          pointer-events:none, so a title there is never shown */
-      b.title = nomC(card) + " · " + RARE[card.rarity].toUpperCase() + " · Nv " + card.lv +
+      b.title = nomC(card) + " · " + RARE[card.rarity].toUpperCase() + " · " + t().lv + " " + card.lv +
                 " · " + card.top;
       sprite(b, "img_bg", IMG.bg[type + "_" + rare], NAT.bg);
       fb.appendChild(b);
@@ -152,9 +191,9 @@
     resize();
     const ms = Math.round(performance.now() - t0);
     document.getElementById("stat").innerHTML =
-      "<b>" + shown.length + "</b> cartes · <b>" + live.length +
-      "</b> animées · <b id='drawn'>0</b> à l'écran · construites en <b>" + ms +
-      " ms</b> · <b id='fps'>—</b>";
+      "<b>" + shown.length + "</b> " + t().cards + " · <b>" + live.length +
+      "</b> " + t().animated + " · <b id='drawn'>0</b> " + t().onScreen +
+      " · " + t().builtIn + " <b>" + ms + " ms</b> · <b id='fps'>—</b>";
   }
 
   /* ---- one instance per timeline, rendered once and copied everywhere ---- */
@@ -464,30 +503,37 @@
     });
   }
 
+  /* A label may be a string or a function: functions are re-read on every sync, so a
+     language switch relabels every button without rebuilding the group. The count of
+     buttons never changes with the language, so the DOM is built once. */
   function group(id, items, get, set) {
     const host = document.getElementById(id);
     const made = items.map(it => {
       const b = document.createElement("button");
-      b.type = "button"; b.className = "pick"; b.textContent = it.label;
+      b.type = "button"; b.className = "pick";
       b.addEventListener("click", () => { set(it.value); sync(); });
       host.appendChild(b);
-      return [b, it.value];
+      return [b, it.value, it.label];
     });
-    return () => made.forEach(([b, v]) => b.setAttribute("aria-pressed", String(get() === v)));
+    return () => made.forEach(([b, v, label]) => {
+      b.textContent = typeof label === "function" ? label() : label;
+      b.setAttribute("aria-pressed", String(get() === v));
+    });
   }
   const syncs = [
     group("cCols", [5, 10, 25].map(n => ({ label: String(n), value: n })), () => state.cols, v => state.cols = v),
-    group("cRare", [{ label: "toutes", value: -1 }].concat(RARE.map((r, i) => ({ label: r.toUpperCase(), value: i }))),
+    group("cRare", [{ label: () => t().allF, value: -1 }].concat(RARE.map((r, i) => ({ label: r.toUpperCase(), value: i }))),
           () => state.rare, v => state.rare = v),
-    group("cType", [{ label: "tous", value: -1 }].concat(
-            types().map((t, i) => ({ label: t, value: i }))),
+    group("cType", [{ label: () => t().all, value: -1 }].concat(
+            [0, 1, 2, 3, 4].map(i => ({ label: () => types()[i], value: i }))),
           () => state.type, v => state.type = v),
-    group("cEv", [{ label: "tous", value: -1 }, { label: "Z suprême super", value: 4 },
-                  { label: "Z suprême", value: 3 }, { label: "Dokkan", value: 2 },
-                  { label: "Z", value: 1 }, { label: "aucun", value: 0 }],
+    group("cEv", [{ label: () => t().all, value: -1 },
+                  { label: () => t().ev[4], value: 4 }, { label: () => t().ev[3], value: 3 },
+                  { label: () => t().ev[2], value: 2 }, { label: () => t().ev[1], value: 1 },
+                  { label: () => t().ev[0], value: 0 }],
           () => state.ev, v => state.ev = v),
-    group("cOwn", [{ label: "toutes", value: "tous" }, { label: "possédées", value: "oui" },
-                   { label: "manquantes", value: "non" }],
+    group("cOwn", [{ label: () => t().allF, value: "tous" }, { label: () => t().owned, value: "oui" },
+                   { label: () => t().missing, value: "non" }],
           () => state.own, v => state.own = v)
   ];
   {
@@ -503,7 +549,7 @@
      by scanning, not by hunting an id order. Rebuilt on a language switch, selection kept. */
   function remplirCat() {
     const garde = catSel.value;
-    catSel.length = 1;                       /* keep the "toutes" option, drop the rest */
+    catSel.length = 1; catSel.options[0].textContent = t().allF;   /* keep "all", relabel it, drop the rest */
     Object.keys(CATS).map(id => [id, nomCat(id)])
       .sort((a, b) => a[1].localeCompare(b[1]))
       .forEach(([id, nom]) => {
@@ -542,8 +588,8 @@
     document.getElementById("score").innerHTML =
       `<span><b>${possede.size}</b> / ${CARDS.length}</span>` + parts +
       `<span class="part lien">` +
-      `<a href="#" id="exp">exporter</a> · <a href="#" id="imp">importer</a>` +
-      ` · <a href="#" id="vider">tout décocher</a></span>`;
+      `<a href="#" id="exp">${t().export}</a> · <a href="#" id="imp">${t().import}</a>` +
+      ` · <a href="#" id="vider">${t().clearAll}</a></span>`;
     document.getElementById("exp").onclick = e => {
       e.preventDefault();
       const b = new Blob([JSON.stringify([...possede])], { type: "application/json" });
@@ -554,8 +600,8 @@
       e.preventDefault();
       const i = document.createElement("input");
       i.type = "file"; i.accept = "application/json";
-      i.onchange = () => i.files[0].text().then(t => {
-        try { possede = new Set(JSON.parse(t)); sauver(); sync(); } catch (err) {}
+      i.onchange = () => i.files[0].text().then(txt => {   /* not `t`: that shadows the i18n helper */
+        try { possede = new Set(JSON.parse(txt)); sauver(); sync(); } catch (err) {}
       });
       i.click();
     };
@@ -564,8 +610,7 @@
     document.getElementById("vider").onclick = e => {
       e.preventDefault();
       if (!possede.size) return;
-      if (!confirm("Décocher les " + possede.size + " cartes de votre box ?\n"
-                 + "C'est sans retour : exportez-les d'abord si vous voulez pouvoir y revenir.")) return;
+      if (!confirm(t().confirmClear(possede.size))) return;
       possede.clear(); sauver(); sync();
     };
   }
@@ -605,8 +650,8 @@
       const card = affichees[+cell.dataset.i];
       if (card) survolEl.innerHTML =
         "<b>" + nomC(card) + "</b> · " + RARE[card.rarity].toUpperCase() +
-        " · Nv " + card.lv + " · " + types()[card.element % 10] +
-        " · éveil " + ["aucun", "Z", "Dokkan", "Z suprême", "Z suprême super"][card.ev] +
+        " · " + t().lv + " " + card.lv + " · " + types()[card.element % 10] +
+        " · " + t().awakening + " " + t().ev[card.ev] +
         " · <span style='opacity:.6'>" + card.top + "</span>";
     }
     if (peint === null || e.pointerType !== "mouse" || !e.buttons) return;
@@ -621,15 +666,14 @@
   const razEl = document.getElementById("fRaz");
   function resume() {
     const p = [];
-    if (state.cols !== 5) p.push(state.cols + " colonnes");
+    if (state.cols !== 5) p.push(state.cols + " " + t().columnsWord);
     if (state.rare >= 0) p.push(RARE[state.rare].toUpperCase());
     if (state.type >= 0) p.push(types()[state.type]);
-    if (state.ev >= 0) p.push(["sans éveil", "Z", "Dokkan", "Z suprême",
-                               "Z suprême super"][state.ev]);
+    if (state.ev >= 0) p.push(t().ev[state.ev]);
     if (state.cat >= 0) p.push(nomCat(state.cat));
-    if (state.own !== "tous") p.push(state.own === "oui" ? "possédées" : "manquantes");
+    if (state.own !== "tous") p.push(state.own === "oui" ? t().owned : t().missing);
     if (state.nom) p.push("« " + state.nom + " »");
-    resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
+    resumeEl.textContent = p.length ? p.join(" · ") : t().allCards;
     resumeEl.classList.toggle("vide", !p.length);
   }
   razEl.addEventListener("click", e => {
@@ -643,9 +687,10 @@
   });
 
   /* The language buttons exist only when a second base has been added — with one language
-     there is nothing to switch, so the bar stays hidden. Switching relabels the five type
-     codes (the badge image is redrawn by paint), rebuilds the category menu in the new
-     language, and repaints; the choice is remembered. */
+     there is nothing to switch, so the bar stays hidden. Switching retranslates the whole
+     page: static chrome (appliquerTextes), the filter buttons and the summary (sync relabels
+     them from their label functions), the category menu, and the tiles' names and badges
+     (paint, called by sync). The choice is remembered. */
   function majLangBtns() {
     document.querySelectorAll("#cLang .pick").forEach(b =>
       b.setAttribute("aria-pressed", String(b.dataset.l === lang)));
@@ -654,9 +699,7 @@
     if (!LANGS.includes(l) || l === lang) return;
     lang = l;
     try { localStorage.setItem(CLE_LANG, l); } catch (e) {}
-    const tb = document.querySelectorAll("#cType .pick");   // [0] is "tous", skip it
-    types().forEach((t, i) => { if (tb[i + 1]) tb[i + 1].textContent = t; });
-    remplirCat(); majLangBtns(); resume(); paint();
+    appliquerTextes(); remplirCat(); majLangBtns(); sync();
   }
   {
     const bar = document.getElementById("langbar");
@@ -694,5 +737,6 @@
   }
   document.documentElement.style.setProperty("--atlas", "url(" + IMG.atlas + ")");
   document.documentElement.style.setProperty("--atlas-max", "url(" + IMG.atlasMax + ")");
+  appliquerTextes();               /* the static chrome, in the current language, before first paint */
   sync();
 })();
