@@ -74,7 +74,10 @@ def main():
     font_b64 = base64.b64encode(open(os.path.join(FOOT, 'dokkan_ui.otf'), 'rb').read()).decode()
     dirs = [(dx, dy) for dx in (-2, 0, 2) for dy in (-2, 0, 2) if (dx, dy) != (0, 0)]
     outline = ','.join(f'calc(var(--u)*{dx}) calc(var(--u)*{dy}) 0 #000' for dx, dy in dirs)
-    shadow = 'calc(var(--u)*0) calc(var(--u)*2) calc(var(--u)*1) #000'
+    # relief 3D du jeu : le contour noir est bien plus épais en bas (mesuré ~5u) qu'en haut (~2u),
+    # les lettres paraissent surélevées, éclairées du dessus. On empile une extrusion noire pleine
+    # vers le bas (1..4 u) par-dessus le contour, pour reproduire cette ombre portée.
+    shadow = ','.join(f'0 calc(var(--u)*{d}) 0 #000' for d in (1, 2, 3, 4))
 
     html = f"""<!doctype html><meta charset="utf-8"><title>Menu Dokkan</title>
 <style>
