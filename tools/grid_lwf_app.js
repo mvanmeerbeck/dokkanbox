@@ -4,6 +4,7 @@
   const LAY = JSON.parse(document.getElementById("gLay").textContent);
   const ANIM = JSON.parse(document.getElementById("gAnim").textContent);
   const CARDS = JSON.parse(document.getElementById("gCards").textContent);
+  const CATS = JSON.parse(document.getElementById("gCats").textContent);
   const THUMB = JSON.parse(document.getElementById("gThumbs").textContent);
 
   const W = LAY.w, H = LAY.h, N = LAY.nodes, NAT = IMG.native;
@@ -13,7 +14,7 @@
   const cAur = document.getElementById("auras"), cPul = document.getElementById("pulses");
   /* Each card carries what it should show, so there is nothing to switch: the album is the
      honest view, and the stress test lived long enough to prove the cost is flat. */
-  const state = { cols: 5, rare: -1, type: -1, own: "tous", nom: "", ev: -1 };
+  const state = { cols: 5, rare: -1, type: -1, own: "tous", nom: "", ev: -1, cat: -1 };
 
   /* ---- what the player owns ------------------------------------------------
      Kept in the browser, exported on demand: no account to create before knowing whether
@@ -88,6 +89,7 @@
       (state.rare < 0 || c.rarity === state.rare) &&
       (state.type < 0 || c.element % 10 === state.type) &&
       (state.ev < 0 || c.ev === state.ev) &&
+      (state.cat < 0 || c.cats.includes(state.cat)) &&
       (state.own === "tous" || (state.own === "oui") === possede.has(c.top)) &&
       (!q || c.name.toLowerCase().includes(q)));
     back.textContent = ""; front.textContent = "";
@@ -480,6 +482,17 @@
       attente = setTimeout(() => { state.nom = champ.value; resume(); paint(); }, 180);
     });
   }
+  const catSel = document.getElementById("cCat");
+  /* Sorted by name so a known category is found by scanning, not by hunting an id order. */
+  for (const [id, nom] of Object.entries(CATS).sort((a, b) => a[1].localeCompare(b[1]))) {
+    const o = document.createElement("option");
+    o.value = id; o.textContent = nom; catSel.appendChild(o);
+  }
+  catSel.addEventListener("change", () => {
+    state.cat = +catSel.value;
+    catSel.dataset.on = state.cat < 0 ? "0" : "1";
+    resume(); paint();
+  });
   /* What a tile animates, in one place: the render lists them for every owned card, and a
      click adds or removes exactly these. Keeping two copies of the rule is how a card ends
      up drawn as owned but still dark until the page is reloaded. */
@@ -588,6 +601,7 @@
     if (state.type >= 0) p.push(["AGI", "TEC", "INT", "PUI", "END"][state.type]);
     if (state.ev >= 0) p.push(["sans éveil", "Z", "Dokkan", "Z suprême",
                                "Z suprême super"][state.ev]);
+    if (state.cat >= 0) p.push(CATS[state.cat]);
     if (state.own !== "tous") p.push(state.own === "oui" ? "possédées" : "manquantes");
     if (state.nom) p.push("« " + state.nom + " »");
     resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
@@ -596,9 +610,10 @@
   razEl.addEventListener("click", e => {
     /* le bouton est dans le summary : sans cela le clic replierait aussi le panneau */
     e.preventDefault(); e.stopPropagation();
-    state.cols = 5; state.rare = state.type = state.ev = -1;
+    state.cols = 5; state.rare = state.type = state.ev = state.cat = -1;
     state.own = "tous"; state.nom = "";
     document.getElementById("cName").value = "";
+    catSel.value = "-1"; catSel.dataset.on = "0";
     sync();
   });
 

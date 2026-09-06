@@ -21,6 +21,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GRD = os.path.join(HERE, 'work', 'grid')
 CSV = os.path.join(HERE, 'work', 'cards', 'cards.csv')
 ROUTES = os.path.join(HERE, 'work', 'cards', 'card_awakening_routes.csv')
+CATS = os.path.join(HERE, 'work', 'cards', 'card_categories.csv')
+CARD_CATS = os.path.join(HERE, 'work', 'cards', 'card_card_categories.csv')
 
 # Same range as the fetcher: only 10xxxxx is a card one can own. The 2000xxx are story
 # enemies and 9999990 a tutorial placeholder — they came in with the first batch and would
@@ -95,6 +97,16 @@ chains = defaultdict(list)
 for cid in sorted(have):
     chains[root(cid)].append(cid)
 
+# ---- the team categories, from the same public export as the rest ---------
+# A card belongs to several (Fusion, Super Saiyan, Movie Bosses…); the game keys the link on
+# every form's id, so a chain's categories are the union over its forms — the base and its
+# awakenings do not always carry exactly the same list.
+cat_name = {int(r['id']): r['name']
+            for r in csv.DictReader(open(CATS, encoding='utf-8', errors='replace'))}
+card_cats = defaultdict(set)
+for r in csv.DictReader(open(CARD_CATS, encoding='utf-8', errors='replace')):
+    card_cats[int(r['card_id'])].add(int(r['card_category_id']))
+
 out, replis = [], 0
 for key, bases in chains.items():
     family = members.get(key) or list(bases)
@@ -113,9 +125,10 @@ for key, bases in chains.items():
         art = max(bases, key=lambda x: (int(rows[x]['rarity']), x))
         replis += 1
     t = rows[top]
+    cats = sorted(set().union(*(card_cats.get(f, set()) for f in family)))
     out.append({'id': art, 'name': t['name'], 'rarity': int(t['rarity']),
                 'element': int(t['element']), 'lv': int(t['lv_max'] or 0),
-                'top': top, 'forms': sorted(family),
+                'top': top, 'forms': sorted(family), 'cats': cats,
                 # what the tile has to show: the game reads awakening off the id — a form
                 # whose id does not end in zero is awakened — and the Extreme Z aura belongs
                 # to the cards that have an EZA route at all.
@@ -138,16 +151,22 @@ for c in out:
     if best is None or (c['rarity'], c['lv']) > (best['rarity'], best['lv']):
         if best:
             c['forms'] = sorted(set(c['forms']) | set(best['forms']))
+            c['cats'] = sorted(set(c['cats']) | set(best['cats']))
             c['eza'] = max(c['eza'], best['eza']); c['ev'] = max(c['ev'], best['ev'])
         fusion[k] = c
     else:
         best['forms'] = sorted(set(best['forms']) | set(c['forms']))
+        best['cats'] = sorted(set(best['cats']) | set(c['cats']))
         best['eza'] = max(best['eza'], c['eza']); best['ev'] = max(best['ev'], c['ev'])
 fusionnees = len(out) - len(fusion)
 out = list(fusion.values())
 out.sort(key=lambda c: c['id'])
 json.dump(out, open(os.path.join(GRD, 'cards.json'), 'w', encoding='utf-8'),
           ensure_ascii=False)
+# only the categories a shown card actually carries, id → name, for the filter's menu
+used = sorted(set().union(*(set(c['cats']) for c in out)))
+json.dump({str(i): cat_name[i] for i in used if i in cat_name},
+          open(os.path.join(GRD, 'cats.json'), 'w', encoding='utf-8'), ensure_ascii=False)
 from collections import Counter
 R = ['N', 'R', 'SR', 'SSR', 'UR', 'LR']
 print(f'{len(have)} vignettes → {len(out)} entrées · {fusionnees} formes suprêmes fusionnées '

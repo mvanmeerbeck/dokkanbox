@@ -193,6 +193,8 @@ parts = [head, pre, body,
          '<script id="gLay" type="application/json">', json.dumps(layout, ensure_ascii=False), '</script>\n',
          '<script id="gAnim" type="application/json">', json.dumps(anim), '</script>\n',
          '<script id="gCards" type="application/json">', json.dumps(cards, ensure_ascii=False), '</script>\n',
+         '<script id="gCats" type="application/json">',
+         open(f'{GRD}/cats.json', encoding='utf-8').read(), '</script>\n',
          '<script id="gThumbs" type="application/json">', json.dumps(thumbs), '</script>\n',
          '<script>', lwfjs, '</script>\n',
          '<script>', app, '</script>\n']

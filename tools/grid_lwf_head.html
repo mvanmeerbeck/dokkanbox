@@ -50,6 +50,11 @@ legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(
 .pick{font:inherit;font-size:12.5px;padding:5px 11px;border-radius:5px;cursor:pointer;
   background:#171A22;color:var(--muted);border:1px solid var(--line)}
 .pick[aria-pressed="true"]{background:#1E2431;color:var(--text);border-color:#39435A}
+/* Cent catégories ne tiennent pas en boutons : une liste déroulante, habillée comme un
+   bouton. Elle passe au clair quand une catégorie est choisie, comme un bouton actif. */
+.sel{max-width:200px}
+.sel[data-on="1"]{background:#1E2431;color:var(--text);border-color:#39435A}
+.sel option{background:var(--panel);color:var(--text)}
 .stat{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
 .stat b{color:var(--gold);font-weight:500}
 
