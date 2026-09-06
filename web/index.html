@@ -16449,12 +16449,31 @@ Util.compressFile = function(inStream, outStream, props, progress) {
     if (peint && affichees[i]) live.push(...anims(affichees[i], col, row));
     sauver(); compter();
   }
-  back.addEventListener("pointerdown", e => {
-    const cell = e.target.closest(".cell");
-    if (!cell) return;
+  /* toggle one cell, whatever it currently is */
+  function basculer(cell) {
     peint = !possede.has(+cell.dataset.id);
     marquer(cell);
-    if (e.pointerType === "mouse") e.preventDefault();
+    peint = null;
+  }
+  /* A tap toggles, a scroll does not — and the browser already tells the two apart: it fires
+     `click` for a real tap (mouse or finger) and swallows it the instant a touch turns into a
+     scroll, with per-platform thresholds. So we key the single toggle on `click` rather than
+     guess a pixel distance ourselves. A mouse drag paints a row; the trailing click is then
+     swallowed so the first card is not flipped twice. */
+  let origine = null, aPeint = false;
+  back.addEventListener("click", e => {
+    if (aPeint) { aPeint = false; return; }   /* a mouse drag already handled these cards */
+    const cell = e.target.closest(".cell");
+    if (cell) basculer(cell);
+  });
+  back.addEventListener("pointerdown", e => {
+    /* touch: let the click decide, so scroll is free. Clear the paint flag so a mouse drag
+       that ended off the grid, leaving it set, cannot swallow this tap. */
+    if (e.pointerType !== "mouse") { aPeint = false; return; }
+    const cell = e.target.closest(".cell");
+    if (!cell) return;
+    origine = cell; peint = null; aPeint = false;
+    e.preventDefault();                        /* no text selection while dragging */
   });
   const survolEl = document.getElementById("survol");
   back.addEventListener("pointermove", e => {
@@ -16467,11 +16486,14 @@ Util.compressFile = function(inStream, outStream, props, progress) {
         " · " + t().awakening + " " + t().ev[card.ev] +
         " · <span style='opacity:.6'>" + card.top + "</span>";
     }
-    if (peint === null || e.pointerType !== "mouse" || !e.buttons) return;
+    /* drag-to-paint, mouse only: the value is fixed from the first card and applied to every
+       card the pointer crosses, the origin included */
+    if (e.pointerType !== "mouse" || !e.buttons || !origine || !cell) return;
+    if (peint === null) { peint = !possede.has(+origine.dataset.id); marquer(origine); aPeint = true; }
     marquer(cell);
   });
   back.addEventListener("pointerleave", () => { if (survolEl) survolEl.innerHTML = "&nbsp;"; });
-  addEventListener("pointerup", () => { peint = null; });
+  addEventListener("pointerup", () => { peint = null; origine = null; });
 
   /* Ce que le panneau replié annonce. Sans cela un filtre laissé actif se traduit par une
      grille amputée dont plus rien ne dit pourquoi. */
