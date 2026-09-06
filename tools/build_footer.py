@@ -31,6 +31,7 @@ COLS = [0.092, 0.296, 0.500, 0.704, 0.908]
 BTN_CY = env('BTN_CY', 65)                 # centre vertical des boutons (unités depuis le haut)
 LBL_CY = env('LBL_CY', 102)                # centre vertical des libellés
 FONT_SZ = env('FONT_SZ', 24)               # taille de police (unités)
+LBL_SX = env('LBL_SX', 1.15)               # étirement horizontal du texte (le jeu étire le footer)
 LBL_W = env('LBL_W', 165)                  # largeur de boîte d'un libellé (unités)
 LBL_H = env('LBL_H', 34)
 
@@ -67,8 +68,9 @@ def main():
                    f'top:{py(LBL_CY - LBL_H / 2):.4f}%;'
                    f'width:{px(LBL_W):.4f}%;height:{py(LBL_H):.4f}%">{label}</div>')
 
-    # police du jeu : la source nomme black.otf pour ces libellés (poids Black condensé du
-    # default.cpk). Contour 2 u = huit ombres portées ; ombre du style = une ombre vers le bas.
+    # police du jeu : le style text_subtitle nomme FOT-NewRodinProN-EB (Extra Bold), rendu par
+    # le 77 Bold Condensed du default.cpk (en/bold.otf). Contour 2 u = huit ombres portées ;
+    # ombre du style = une ombre vers le bas. Le texte est étiré (LBL_SX) comme le footer du jeu.
     font_b64 = base64.b64encode(open(os.path.join(FOOT, 'dokkan_ui.otf'), 'rb').read()).decode()
     dirs = [(dx, dy) for dx in (-2, 0, 2) for dy in (-2, 0, 2) if (dx, dy) != (0, 0)]
     outline = ','.join(f'calc(var(--u)*{dx}) calc(var(--u)*{dy}) 0 #000' for dx, dy in dirs)
@@ -83,7 +85,7 @@ def main():
   .footer>*{{position:absolute}}
   .lbl{{display:flex;align-items:center;justify-content:center;color:#fff;white-space:nowrap;
     font-family:DokkanUI,"Arial Narrow",sans-serif;font-size:calc(var(--u)*{FONT_SZ:.0f});line-height:1;
-    transform:skewX(-10deg);   /* l'italique du jeu = cisaillement ~10° */
+    transform:scaleX({LBL_SX:.3f}) skewX(-10deg);   /* étirement horizontal du jeu + italique ~10° */
     z-index:50;   /* au-dessus des canevas de boutons, remis en dernier dans le DOM */
     text-shadow:{outline},{shadow}}}
 </style>
