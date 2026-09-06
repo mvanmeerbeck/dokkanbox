@@ -15,7 +15,7 @@ communes ; la base locale est même plus propre (des entiers, pas les flottants 
 Le mot de passe d'une version se trouve dans le `settings.json` du Dokkan Asset Downloader
 (clé `GlbDbPassword`), ou se capture au vol sur un appareil qui télécharge la base.
 """
-import os, shutil, subprocess, sys, tempfile
+import os, re, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DB = os.path.join(HERE, 'work', 'db', 'database.db')
@@ -34,50 +34,73 @@ NEEDED = {
 }
 
 
-def sqlcipher(sql):
-    """Lance sqlcipher sur la base, script SQL en entrée. Renvoie (code, sortie)."""
+# Seules ces deux tables portent des noms traduits ; les autres (relations, éveils) sont les
+# mêmes dans toutes les langues. Une langue secondaire n'en fournit donc que celles-là, sous
+# cards_<lang>.csv / card_categories_<lang>.csv, que make_cards lit pour ses noms.
+LOCALIZED = ['cards', 'card_categories']
+
+
+def sqlcipher(db, sql):
+    """Lance sqlcipher sur `db`, script SQL en entrée. Renvoie (code, sortie)."""
     fd, path = tempfile.mkstemp(suffix='.sql')
     with os.fdopen(fd, 'w') as f:
         f.write(f'PRAGMA key = "{PW}";\n{sql}\n')
     try:
-        r = subprocess.run(['sqlcipher', DB, '-init', path, '.quit'],
+        r = subprocess.run(['sqlcipher', db, '-init', path, '.quit'],
                            capture_output=True, text=True, timeout=120)
         return r.returncode, (r.stdout + r.stderr)
     finally:
         os.unlink(path)
 
 
+def exporter(db, table, dest):
+    """Exporte une table en CSV, de façon atomique."""
+    fd, tmp = tempfile.mkstemp(dir=OUT, suffix='.csv'); os.close(fd)
+    code, out = sqlcipher(db, f'.headers on\n.mode csv\n.output {tmp}\nSELECT * FROM {table};')
+    if code != 0 or ',' not in open(tmp, encoding='utf-8').readline():
+        os.unlink(tmp)
+        raise SystemExit(f'  {os.path.basename(dest)} : export échoué — {out.strip()[:120]}')
+    os.replace(tmp, dest)
+    return sum(1 for _ in open(dest, encoding='utf-8')) - 1
+
+
+def dechiffrable(db):
+    code, out = sqlcipher(db, "SELECT 1 FROM sqlite_master LIMIT 1;")
+    return code == 0 and 'not a database' not in out
+
+
 def main():
     if not shutil.which('sqlcipher'):
         raise SystemExit('sqlcipher introuvable — `brew install sqlcipher`')
     if not os.path.exists(DB):
-        raise SystemExit(f'base absente : {DB}\n'
-                         "(extraire database.db du BlueStacks au préalable)")
+        raise SystemExit(f'base absente : {DB}\n(lancer extract_db.py au préalable)')
     os.makedirs(OUT, exist_ok=True)
-
-    # une lecture témoin : le mot de passe ouvre-t-il bien la base ?
-    code, out = sqlcipher("SELECT count(*) FROM sqlite_master WHERE type='table';")
-    if 'not a database' in out or code != 0:
+    if not dechiffrable(DB):
         raise SystemExit('le mot de passe ne déchiffre pas cette base — '
                          'version du jeu ≠ mot de passe ? (voir DOKKAN_DB_PW)')
-    print(f'base déchiffrée · {out.strip().splitlines()[-1]} tables')
 
+    # la base primaire : toutes les tables (structure + noms de sa langue)
     total = 0
     for nom, role in NEEDED.items():
-        dest = os.path.join(OUT, nom + '.csv')
-        # export CSV atomique : on écrit dans un fichier temporaire que sqlcipher remplit,
-        # puis on le bascule en place — une coupure ne laisse pas un CSV tronqué.
-        fd, tmp = tempfile.mkstemp(dir=OUT, suffix='.csv'); os.close(fd)
-        code, out = sqlcipher(f'.headers on\n.mode csv\n.output {tmp}\nSELECT * FROM {nom};')
-        head = open(tmp, encoding='utf-8').readline()
-        if code != 0 or ',' not in head:
-            os.unlink(tmp)
-            raise SystemExit(f'  {nom} : export échoué — {out.strip()[:120]}')
-        os.replace(tmp, dest)
-        lignes = sum(1 for _ in open(dest, encoding='utf-8')) - 1
-        total += lignes
-        print(f'  {nom:26} {lignes:>7} lignes  · {role}')
-    print(f'{len(NEEDED)} tables, {total} lignes → {os.path.relpath(OUT, HERE)}/')
+        n = exporter(DB, nom, os.path.join(OUT, nom + '.csv'))
+        total += n
+        print(f'  {nom:26} {n:>7} lignes  · {role}')
+
+    # les langues secondaires : leurs bases figées sur le disque, juste les tables traduites,
+    # pour que la page offre le bouton de langue
+    autres = 0
+    for f in sorted(os.listdir(os.path.dirname(DB))):
+        m = re.match(r'database_([a-z]{2})\.db$', f)
+        if not m:
+            continue
+        lang, dbp = m.group(1), os.path.join(os.path.dirname(DB), f)
+        if not dechiffrable(dbp):
+            print(f'  [{lang}] ignorée : mot de passe différent'); continue
+        for table in LOCALIZED:
+            exporter(dbp, table, os.path.join(OUT, f'{table}_{lang}.csv'))
+        autres += 1
+        print(f'  [{lang}] noms traduits ajoutés (cards_{lang}, card_categories_{lang})')
+    print(f'{len(NEEDED)} tables + {autres} langue(s) secondaire(s) → {os.path.relpath(OUT, HERE)}/')
 
 
 if __name__ == '__main__':
