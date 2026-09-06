@@ -548,10 +548,7 @@
     if (!cell) return;
     peint = !possede.has(+cell.dataset.id);
     marquer(cell);
-    if (e.pointerType === "mouse") {
-      document.getElementById("stack").classList.add("peint");
-      e.preventDefault();
-    }
+    if (e.pointerType === "mouse") e.preventDefault();
   });
   const survolEl = document.getElementById("survol");
   back.addEventListener("pointermove", e => {
@@ -568,10 +565,7 @@
     marquer(cell);
   });
   back.addEventListener("pointerleave", () => { if (survolEl) survolEl.innerHTML = "&nbsp;"; });
-  addEventListener("pointerup", () => {
-    peint = null;
-    document.getElementById("stack").classList.remove("peint");
-  });
+  addEventListener("pointerup", () => { peint = null; });
 
   function sync() { syncs.forEach(f => f()); paint(); }
 

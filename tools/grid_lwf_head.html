@@ -48,7 +48,15 @@ legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(
    sky vanishes behind the grid and the additive glows stop adding to it. The planes are
    numbered instead, and each carries its own z-index — that is enough to keep the sprites'
    own z-indexes (1..35) from leaking into the root context. */
-#stack{position:relative}
+/* Android peint un rectangle bleu sur l'élément touché et laisse le doigt entamer une
+   sélection ; l'un comme l'autre transparaissent par les parties transparentes de la
+   carte et se lisent comme un fond bleu derrière elle. La règle existait, mais posée
+   par une classe à la souris seulement : au doigt elle n'arrivait jamais, et de toute
+   façon trop tard — la sélection démarre au premier contact. Rien ici n'est du texte
+   à sélectionner, elle est donc permanente. preventDefault reste réservé à la souris :
+   sur un écran tactile il annulerait aussi le défilement. */
+#stack{position:relative;user-select:none;-webkit-user-select:none;
+  -webkit-tap-highlight-color:transparent;-webkit-touch-callout:none}
 /* the still sky, when the build provides one: it holds the page's ground until the
    timeline is ready, and is dropped the moment the timeline draws its first frame */
 body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed}
@@ -74,7 +82,6 @@ body.attente{background:#05070c var(--sky) center center / cover no-repeat fixed
    glitch; dimming alone reads as shadow. Together they read as "not yet". */
 .cell.non{filter:grayscale(.9) brightness(.4) contrast(.9)}
 #back .cell{cursor:pointer}
-#stack.peint{user-select:none}
 .score{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;margin:0 0 14px;
   font-family:"IBM Plex Mono",ui-monospace,monospace;font-size:13px;color:var(--muted)}
 .score b{font-size:22px;color:var(--text);font-weight:600}
