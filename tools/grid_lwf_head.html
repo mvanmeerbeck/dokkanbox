@@ -55,6 +55,11 @@ legend{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(
 .sel{max-width:200px}
 .sel[data-on="1"]{background:#1E2431;color:var(--text);border-color:#39435A}
 .sel option{background:var(--panel);color:var(--text)}
+/* La bascule de langue : une rangée de boutons comme les filtres, mais posée sous le titre
+   et toujours visible — ce n'est pas un filtre. Cachée tant qu'il n'y a qu'une langue. */
+.langbar{display:flex;gap:10px;align-items:center;margin:0 0 20px}
+.langbar[hidden]{display:none}   /* le display:flex ci-dessus battrait sinon l'attribut hidden */
+.langbar .lbl{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
 .stat{margin-left:auto;text-align:right;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--muted)}
 .stat b{color:var(--gold);font-weight:500}
 

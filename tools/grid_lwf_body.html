@@ -5,6 +5,12 @@
 <div class="wrap">
   <h1>My Dokkan Box</h1>
 
+  <!-- Apparaît seulement quand une 2e langue de données existe (langs.json). Hors du panneau
+       de filtres pour rester visible même replié : la langue n'est pas un filtre. -->
+  <div class="langbar" id="langbar" hidden>
+    <span class="lbl">Langue</span><div class="row" id="cLang"></div>
+  </div>
+
   <!-- Six rangées de boutons occupaient tout l'écran d'un téléphone avant la première
        carte. Repliées, elles tiennent sur une ligne — qui dit ce qui est actif, sans quoi
        un panneau fermé masque une grille silencieusement restreinte. -->

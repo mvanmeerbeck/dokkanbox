@@ -14,7 +14,7 @@ of its terminal form. Nothing is invented: the terminal forms have ids ending in
 the mirror serves no thumbnail for them, precisely because the game reuses the base one and
 only swaps the frame.
 """
-import csv, json, os
+import csv, json, os, re
 from collections import defaultdict
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -101,11 +101,38 @@ for cid in sorted(have):
 # A card belongs to several (Fusion, Super Saiyan, Movie Bosses…); the game keys the link on
 # every form's id, so a chain's categories are the union over its forms — the base and its
 # awakenings do not always carry exactly the same list.
-cat_name = {int(r['id']): r['name']
-            for r in csv.DictReader(open(CATS, encoding='utf-8', errors='replace'))}
 card_cats = defaultdict(set)
 for r in csv.DictReader(open(CARD_CATS, encoding='utf-8', errors='replace')):
     card_cats[int(r['card_id'])].add(int(r['card_category_id']))
+
+# ---- languages -----------------------------------------------------------
+# One base = one language: its `name` column holds names in that language. The primary base
+# (cards.csv / card_categories.csv) is the game's region we extracted — English here. A
+# second language slots in as cards_<lang>.csv + card_categories_<lang>.csv, same tables from
+# that region's base; only the name columns are read from it. So adding French later is a
+# data drop, no code change — LANGS grows on its own and every name becomes a per-language map.
+PRIMARY = 'en'
+CARDS_DIR = os.path.dirname(CSV)
+extra = sorted(m.group(1) for f in os.listdir(CARDS_DIR)
+               if (m := re.match(r'cards_([a-z]{2})\.csv$', f)))
+LANGS = [PRIMARY] + extra
+
+
+def name_map(path, col='name'):
+    return {int(r['id']): r[col]
+            for r in csv.DictReader(open(path, encoding='utf-8', errors='replace'))}
+
+
+card_name = {PRIMARY: {i: r['name'] for i, r in rows.items()}}
+cat_name = {PRIMARY: name_map(CATS)}
+for lang in extra:
+    card_name[lang] = name_map(os.path.join(CARDS_DIR, f'cards_{lang}.csv'))
+    cat_name[lang] = name_map(os.path.join(CARDS_DIR, f'card_categories_{lang}.csv'))
+
+
+def loc_name(table, cid):
+    """Name of `cid` in every language, primary as fallback where a language lacks it."""
+    return {lang: table[lang].get(cid, table[PRIMARY].get(cid)) for lang in LANGS}
 
 out, replis = [], 0
 for key, bases in chains.items():
@@ -126,7 +153,7 @@ for key, bases in chains.items():
         replis += 1
     t = rows[top]
     cats = sorted(set().union(*(card_cats.get(f, set()) for f in family)))
-    out.append({'id': art, 'name': t['name'], 'rarity': int(t['rarity']),
+    out.append({'id': art, 'name': loc_name(card_name, top), 'rarity': int(t['rarity']),
                 'element': int(t['element']), 'lv': int(t['lv_max'] or 0),
                 'top': top, 'forms': sorted(family), 'cats': cats,
                 # what the tile has to show: the game reads awakening off the id — a form
@@ -163,10 +190,13 @@ out = list(fusion.values())
 out.sort(key=lambda c: c['id'])
 json.dump(out, open(os.path.join(GRD, 'cards.json'), 'w', encoding='utf-8'),
           ensure_ascii=False)
-# only the categories a shown card actually carries, id → name, for the filter's menu
+# only the categories a shown card actually carries, id → {lang: name}, for the filter's menu
 used = sorted(set().union(*(set(c['cats']) for c in out)))
-json.dump({str(i): cat_name[i] for i in used if i in cat_name},
+json.dump({str(i): loc_name(cat_name, i) for i in used if i in cat_name[PRIMARY]},
           open(os.path.join(GRD, 'cats.json'), 'w', encoding='utf-8'), ensure_ascii=False)
+# the languages this build carries, in order — the page reads it to know whether to show a
+# switch at all and which flags to offer
+json.dump(LANGS, open(os.path.join(GRD, 'langs.json'), 'w', encoding='utf-8'))
 from collections import Counter
 R = ['N', 'R', 'SR', 'SSR', 'UR', 'LR']
 print(f'{len(have)} vignettes → {len(out)} entrées · {fusionnees} formes suprêmes fusionnées '

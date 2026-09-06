@@ -10,6 +10,22 @@
   const W = LAY.w, H = LAY.h, N = LAY.nodes, NAT = IMG.native;
   const pc = (v, t) => (v / t * 100) + "%";
   const RARE = ["n", "r", "sr", "ssr", "ur", "lr"];
+
+  /* ---- language: everything that comes FROM THE GAME (card names, category names, the
+     five type codes and their badge image) follows this; the page's own chrome stays
+     French. One base is one language, so the switch only exists once a second base is
+     dropped in — LANGS then has two entries and the buttons appear. */
+  const LANGS = IMG.langs;
+  const CLE_LANG = "dokkan.langue";
+  let lang = LANGS[0];
+  try { const s = localStorage.getItem(CLE_LANG); if (LANGS.includes(s)) lang = s; } catch (e) {}
+  // the game's own type codes, per language — the badge shows them, so the text must match
+  const TYPES = { en: ["AGL", "TEQ", "INT", "STR", "PHY"],
+                  fr: ["AGI", "TEC", "INT", "PUI", "END"] };
+  const types = () => TYPES[lang] || TYPES[LANGS[0]];
+  const nomC = c => c.name[lang] || c.name[LANGS[0]];         // card name in the current lang
+  const nomCat = id => { const m = CATS[id]; return m ? (m[lang] || m[LANGS[0]]) : ""; };
+  const LOCA = () => IMG.loc[lang] || IMG.loc[LANGS[0]];      // this lang's badges + label
   const back = document.getElementById("back"), front = document.getElementById("front");
   const cAur = document.getElementById("auras"), cPul = document.getElementById("pulses");
   /* Each card carries what it should show, so there is nothing to switch: the album is the
@@ -91,7 +107,7 @@
       (state.ev < 0 || c.ev === state.ev) &&
       (state.cat < 0 || c.cats.includes(state.cat)) &&
       (state.own === "tous" || (state.own === "oui") === possede.has(c.top)) &&
-      (!q || c.name.toLowerCase().includes(q)));
+      (!q || nomC(c).toLowerCase().includes(q)));
     back.textContent = ""; front.textContent = "";
     drawnEl = null;              /* the stat line is rebuilt below; the old node is gone */
     const fb = document.createDocumentFragment(), ff = document.createDocumentFragment();
@@ -104,7 +120,7 @@
       b.dataset.id = card.top; b.dataset.i = idx;
       /* the tooltip has to live on the plane that receives the pointer: #front is
          pointer-events:none, so a title there is never shown */
-      b.title = card.name + " · " + RARE[card.rarity].toUpperCase() + " · Nv " + card.lv +
+      b.title = nomC(card) + " · " + RARE[card.rarity].toUpperCase() + " · Nv " + card.lv +
                 " · " + card.top;
       sprite(b, "img_bg", IMG.bg[type + "_" + rare], NAT.bg);
       fb.appendChild(b);
@@ -120,9 +136,9 @@
       /* Only the big star. In the game's own box the awakened tile carries that one and
          nothing else; the row of small stars beside it says the same thing twice. */
       if (card.awk) sprite(f, "image_star_evo_big", IMG.star["5"], NAT.star["5"]);
-      sprite(f, "image_label_lv", IMG.label, NAT.label);
+      sprite(f, "image_label_lv", LOCA().label, LOCA().natLabel);
       text(f, "font_num", String(card.lv));
-      sprite(f, "image_icon_type", IMG.type[String(card.element)], NAT.type);
+      sprite(f, "image_icon_type", LOCA().type[String(card.element)], LOCA().natType);
       ff.appendChild(f);
 
       const col = idx % state.cols, row = (idx / state.cols) | 0;
@@ -464,7 +480,7 @@
     group("cRare", [{ label: "toutes", value: -1 }].concat(RARE.map((r, i) => ({ label: r.toUpperCase(), value: i }))),
           () => state.rare, v => state.rare = v),
     group("cType", [{ label: "tous", value: -1 }].concat(
-            ["AGI", "TEC", "INT", "PUI", "END"].map((t, i) => ({ label: t, value: i }))),
+            types().map((t, i) => ({ label: t, value: i }))),
           () => state.type, v => state.type = v),
     group("cEv", [{ label: "tous", value: -1 }, { label: "Z suprême super", value: 4 },
                   { label: "Z suprême", value: 3 }, { label: "Dokkan", value: 2 },
@@ -483,11 +499,20 @@
     });
   }
   const catSel = document.getElementById("cCat");
-  /* Sorted by name so a known category is found by scanning, not by hunting an id order. */
-  for (const [id, nom] of Object.entries(CATS).sort((a, b) => a[1].localeCompare(b[1]))) {
-    const o = document.createElement("option");
-    o.value = id; o.textContent = nom; catSel.appendChild(o);
+  /* (Re)build the menu in the current language, sorted by name so a known category is found
+     by scanning, not by hunting an id order. Rebuilt on a language switch, selection kept. */
+  function remplirCat() {
+    const garde = catSel.value;
+    catSel.length = 1;                       /* keep the "toutes" option, drop the rest */
+    Object.keys(CATS).map(id => [id, nomCat(id)])
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .forEach(([id, nom]) => {
+        const o = document.createElement("option");
+        o.value = id; o.textContent = nom; catSel.appendChild(o);
+      });
+    catSel.value = garde;
   }
+  remplirCat();
   catSel.addEventListener("change", () => {
     state.cat = +catSel.value;
     catSel.dataset.on = state.cat < 0 ? "0" : "1";
@@ -579,8 +604,8 @@
     if (cell && survolEl) {
       const card = affichees[+cell.dataset.i];
       if (card) survolEl.innerHTML =
-        "<b>" + card.name + "</b> · " + RARE[card.rarity].toUpperCase() +
-        " · Nv " + card.lv + " · " + ["AGI", "TEC", "INT", "PUI", "END"][card.element % 10] +
+        "<b>" + nomC(card) + "</b> · " + RARE[card.rarity].toUpperCase() +
+        " · Nv " + card.lv + " · " + types()[card.element % 10] +
         " · éveil " + ["aucun", "Z", "Dokkan", "Z suprême", "Z suprême super"][card.ev] +
         " · <span style='opacity:.6'>" + card.top + "</span>";
     }
@@ -598,10 +623,10 @@
     const p = [];
     if (state.cols !== 5) p.push(state.cols + " colonnes");
     if (state.rare >= 0) p.push(RARE[state.rare].toUpperCase());
-    if (state.type >= 0) p.push(["AGI", "TEC", "INT", "PUI", "END"][state.type]);
+    if (state.type >= 0) p.push(types()[state.type]);
     if (state.ev >= 0) p.push(["sans éveil", "Z", "Dokkan", "Z suprême",
                                "Z suprême super"][state.ev]);
-    if (state.cat >= 0) p.push(CATS[state.cat]);
+    if (state.cat >= 0) p.push(nomCat(state.cat));
     if (state.own !== "tous") p.push(state.own === "oui" ? "possédées" : "manquantes");
     if (state.nom) p.push("« " + state.nom + " »");
     resumeEl.textContent = p.length ? p.join(" · ") : "toutes les cartes";
@@ -616,6 +641,38 @@
     catSel.value = "-1"; catSel.dataset.on = "0";
     sync();
   });
+
+  /* The language buttons exist only when a second base has been added — with one language
+     there is nothing to switch, so the bar stays hidden. Switching relabels the five type
+     codes (the badge image is redrawn by paint), rebuilds the category menu in the new
+     language, and repaints; the choice is remembered. */
+  function majLangBtns() {
+    document.querySelectorAll("#cLang .pick").forEach(b =>
+      b.setAttribute("aria-pressed", String(b.dataset.l === lang)));
+  }
+  function changerLangue(l) {
+    if (!LANGS.includes(l) || l === lang) return;
+    lang = l;
+    try { localStorage.setItem(CLE_LANG, l); } catch (e) {}
+    const tb = document.querySelectorAll("#cType .pick");   // [0] is "tous", skip it
+    types().forEach((t, i) => { if (tb[i + 1]) tb[i + 1].textContent = t; });
+    remplirCat(); majLangBtns(); resume(); paint();
+  }
+  {
+    const bar = document.getElementById("langbar");
+    if (LANGS.length > 1 && bar) {
+      bar.hidden = false;
+      const host = document.getElementById("cLang");
+      LANGS.forEach(l => {
+        const b = document.createElement("button");
+        b.type = "button"; b.className = "pick"; b.textContent = l.toUpperCase();
+        b.dataset.l = l;
+        b.addEventListener("click", () => changerLangue(l));
+        host.appendChild(b);
+      });
+      majLangBtns();
+    }
+  }
 
   function sync() { syncs.forEach(f => f()); resume(); paint(); }
 

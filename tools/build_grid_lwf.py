@@ -13,7 +13,6 @@ LOC = os.path.join(HERE, 'work', 'loc')
 FNT = os.path.join(HERE, 'work', 'fonts', 'out', 'fr', 'custom', 'number')
 BAK = os.path.join(HERE, 'work', 'baked')
 GRD = os.path.join(HERE, 'work', 'grid')
-LANG = 'fr'
 ARGS = [a for a in sys.argv[1:] if not a.startswith('-')]
 LIMIT = int(ARGS[0]) if ARGS else 300
 
@@ -51,20 +50,35 @@ layout = json.load(open(os.path.join(HERE, 'work', 'chara_130_current.json'), en
 N = layout['nodes']
 
 # ---- the shared chrome: one copy, however many cards ---------------------
-img = {'bg': {}, 'band': {}, 'type': {}, 'rare': {}, 'star': {}}
+img = {'bg': {}, 'band': {}, 'rare': {}, 'star': {}}
 for t in range(5):
     for r in range(4):
         img['bg'][f'{t}_{r}'] = uri(f'{T}/bg/cha_base_0{t}_0{r}.png')
     img['band'][str(t)] = uri(f'{T}/cha_base_bottom_0{t}.png')
-for cls in range(3):
-    for t in range(5):
-        img['type'][str(cls * 10 + t)] = uri(f'{LOC}/{LANG}/cha_type_icon_{cls}{t}.png')
+# The type badges and the "Lv/Nv" label are the only tile pieces the game localises. One
+# base gives one language of NAMES (make_cards) and here we bake that language's badges, so
+# a switch flips text and image together. `langs.json` drives it: today just ['en'], and
+# dropping a French base makes it ['en','fr'] with no change here — the extra loop runs.
+LANGS = json.load(open(f'{GRD}/langs.json', encoding='utf-8'))
+img['langs'] = LANGS
+img['loc'] = {}
+for lang in LANGS:
+    # every language reuses the same basenames (cha_type_icon_11.png…), so the served copies
+    # must be namespaced by language or they collide on write
+    L = {'type': {}, 'label': uri(f'{LOC}/{lang}/com_label_lv.png', 'img', f'{lang}_com_label_lv.png'),
+         'natType': None, 'natLabel': None}
+    for cls in range(3):
+        for t in range(5):
+            L['type'][str(cls * 10 + t)] = uri(f'{LOC}/{lang}/cha_type_icon_{cls}{t}.png',
+                                               'img', f'{lang}_cha_type_icon_{cls}{t}.png')
+    L['natType'] = list(_I.open(f'{LOC}/{lang}/cha_type_icon_11.png').size)
+    L['natLabel'] = list(_I.open(f'{LOC}/{lang}/com_label_lv.png').size)
+    img['loc'][lang] = L
 for k in ('n', 'r', 'sr', 'ssr', 'ur', 'lr'):
     img['rare'][k] = uri(f'{T}/cha_rare_sm_{k}.png')
 for n in range(1, 6):
     img['star'][str(n)] = uri(f'{T}/cha_evo_star{n}.png')
 img['lock'] = uri(f'{T}/cha_icon_lock.png')
-img['label'] = uri(f'{LOC}/{LANG}/com_label_lv.png')
 img['atlas'] = uri(f'{FNT}/number.png')
 # the outgame sky the game puts behind the character list: layout/image/common/com_bg.png,
 # 852 x 1136, drawn 1:1 over the whole design area (box 852x1136 at 0,0, scale 1, z 1 —
@@ -91,10 +105,9 @@ img['atlasMax'] = (blob(_buf.getvalue(), 'img', 'number_max.png') if WEB else
                    'data:image/png;base64,' + base64.b64encode(_buf.getvalue()).decode())
 
 nat = lambda p: list(_I.open(p).size)
-img['native'] = {
+img['native'] = {   # type and label sizes are per language, in img['loc'][lang]
     'bg': nat(f'{T}/bg/cha_base_01_03.png'), 'band': nat(f'{T}/cha_base_bottom_01.png'),
-    'type': nat(f'{LOC}/{LANG}/cha_type_icon_11.png'), 'rare': nat(f'{T}/cha_rare_sm_ssr.png'),
-    'lock': nat(f'{T}/cha_icon_lock.png'), 'label': nat(f'{LOC}/{LANG}/com_label_lv.png'),
+    'rare': nat(f'{T}/cha_rare_sm_ssr.png'), 'lock': nat(f'{T}/cha_icon_lock.png'),
     'star': {str(n): nat(f'{T}/cha_evo_star{n}.png') for n in range(1, 6)},
 }
 
